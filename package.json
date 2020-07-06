@@ -1,12 +1,12 @@
 {
-  "name": "my-project",
+  "name": "msEngage",
   "version": "1.0.0",
-  "description": "My-Pages Project",
+  "description": "Pathfinding Project",
   "main": "index.js",
   "scripts": {
     "build": "webpack"
   },
-  "author": "vinay",
+  "author": "mukta",
   "devDependencies": {
     "babel-core": "^6.22.1",
     "babel-loader": "^6.2.10",
