@@ -480,6 +480,7 @@ $.extend(Controller, {
 
         this.setStartPos(centerX - 5, centerY);
         this.setEndPos(centerX + 5, centerY);
+        this.setEndPos(centerX , centerY);
     },
     setStartPos: function(gridX, gridY) {
         this.startX = gridX;
@@ -491,6 +492,11 @@ $.extend(Controller, {
         this.endY = gridY;
         View.setEndPos(gridX, gridY);
     },
+    setEndPos2: function(gridX, gridY) {
+        this.endX2 = gridX;
+        this.endY2 = gridY;
+        View.setEndPos2(gridX, gridY);
+    },
     setWalkableAt: function(gridX, gridY, walkable) {
         this.grid.setWalkableAt(gridX, gridY, walkable);
         View.setAttributeAt(gridX, gridY, 'walkable', walkable);
@@ -499,7 +505,7 @@ $.extend(Controller, {
         return gridX === this.startX && gridY === this.startY;
     },
     isEndPos: function(gridX, gridY) {
-        return gridX === this.endX && gridY === this.endY;
+        return (gridX === this.endX && gridY === this.endY) || (gridX === this.endX2 && gridY === this.endY2);
     },
     isStartOrEndPos: function(gridX, gridY) {
         return this.isStartPos(gridX, gridY) || this.isEndPos(gridX, gridY);
