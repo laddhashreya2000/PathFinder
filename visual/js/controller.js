@@ -103,7 +103,12 @@ var Controller = StateMachine.create({
 $.extend(Controller, {
     gridSize: [64, 36], // number of nodes horizontally and vertically
     operationsPerSecond: 300,
+   
+    getDest: function(){ 
+      var destattr =$('input[name=dest]:checked').val();
 
+      return destattr;
+    },
     /**
      * Asynchronous transition from `none` state to `ready` state.
      */
