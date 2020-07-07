@@ -480,7 +480,7 @@ $.extend(Controller, {
 
         this.setStartPos(centerX - 5, centerY);
         this.setEndPos(centerX + 5, centerY);
-        this.setEndPos(centerX , centerY);
+        this.setEndPos2(centerX , centerY);
     },
     setStartPos: function(gridX, gridY) {
         this.startX = gridX;
