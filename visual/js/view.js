@@ -301,10 +301,15 @@ var View = {
         ];
     },
     showStats: function(opts) {
+        var len = Math.round(opts.pathLength * 100) / 100;
+        if(len == 0){
+            len = len + ', PATH DOES NOT EXIST';
+        }
         var texts = [
-            'length: ' + Math.round(opts.pathLength * 100) / 100,
+            'length: ' + len,
             'time: ' + opts.timeSpent + 'ms',
-            'operations: ' + opts.operationCount
+            'operations: ' + opts.operationCount,
+            
         ];
         $('#stats').show().html(texts.join('<br>'));
     },
