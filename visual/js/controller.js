@@ -13,6 +13,11 @@ var Controller = StateMachine.create({
             to:   'ready'
         },
         {
+            name: 'set',
+            from: '*',
+            to:   'ready'
+        },
+        {
             name: 'search',
             from: 'starting',
             to:   'searching'
@@ -140,9 +145,49 @@ $.extend(Controller, {
 
         timeStart = window.performance ? performance.now() : Date.now();
         grid = this.grid.clone();
-        this.path = finder.findPath(
+
+        var pathA = finder.findPath(
             this.startX, this.startY, this.endX, this.endY, grid
         );
+        
+     if(this.endX2 !== undefined && Controller.getDest() == "Two"){
+        grid1 = this.grid.clone();
+        grid2 = this.grid.clone();
+        var Path;
+        var pathB = finder.findPath(
+            this.startX, this.startY, this.endX2, this.endY2, grid1
+        );
+
+        var pathC = finder.findPath(
+            this.endX, this.endY, this.endX2, this.endY2, grid2
+        );
+
+        var lenA = PF.Util.pathLength(pathA), lenB = PF.Util.pathLength(pathB);
+
+        if(lenA < lenB){
+            pathC.shift();
+            Path = pathA.concat(pathC);  
+        }
+        
+        else{ 
+            pathB.pop();
+            Path = pathB.concat(pathC.reverse());
+        }
+
+       if(lenA+lenB < PF.Util.pathLength(Path)){ 
+            pathA.shift();
+            Path = (pathB.reverse()).concat(pathA);
+       }
+       
+       this.path = Path;
+     }
+
+     else this.path = pathA;
+
+  //      this.path = finder.findPath(
+  //          this.startX, this.startY, this.endX, this.endY, grid
+  //      );
+
         this.operationCount = this.operations.length;
         timeEnd = window.performance ? performance.now() : Date.now();
         this.timeSpent = (timeEnd - timeStart).toFixed(4);
@@ -192,6 +237,15 @@ $.extend(Controller, {
     onmodify: function(event, from, to) {
         // => modified
     },
+    onset: function(event, from, to) {
+        setTimeout(function() {
+            Controller.clearOperations();
+            Controller.clearAll();
+            Controller.buildNewGrid();
+            Controller.setDefaultStartEndPos();
+        }, View.nodeColorizeEffect.duration * 1.2);
+        // => ready
+    },
     onreset: function(event, from, to) {
         setTimeout(function() {
             Controller.clearOperations();
@@ -221,6 +275,11 @@ $.extend(Controller, {
             text: 'Clear Walls',
             enabled: true,
             callback: $.proxy(this.reset, this),
+        }, {
+            id: 4,
+            text: 'Set dest',
+            enabled: true,
+            callback: $.proxy(this.set, this),
         });
         // => [starting, draggingStart, draggingEnd, drawingStart, drawingEnd]
     },
@@ -231,6 +290,11 @@ $.extend(Controller, {
         this.setButtonStates({
             id: 2,
             enabled: true,
+         }, {
+            id: 4,
+            text: 'Set dest',
+            enabled: false,
+            callback: $.proxy(this.set, this),
         });
         this.search();
         // => searching
@@ -247,6 +311,11 @@ $.extend(Controller, {
             text: 'Pause Search',
             enabled: true,
             callback: $.proxy(this.pause, this),
+        }, {
+            id: 4,
+            text: 'Set dest',
+            enabled: false,
+            callback: $.proxy(this.set, this),
         });
         // => [paused, finished]
     },
@@ -262,6 +331,11 @@ $.extend(Controller, {
             text: 'Cancel Search',
             enabled: true,
             callback: $.proxy(this.cancel, this),
+        }, {
+            id: 4,
+            text: 'Set dest',
+            enabled: true,
+            callback: $.proxy(this.set, this),
         });
         // => [searching, ready]
     },
@@ -277,6 +351,11 @@ $.extend(Controller, {
             text: 'Clear Path',
             enabled: true,
             callback: $.proxy(this.clear, this),
+        }, {
+            id: 4,
+            text: 'Set dest',
+            enabled: true,
+            callback: $.proxy(this.set, this),
         });
     },
     onmodified: function() {
@@ -291,6 +370,11 @@ $.extend(Controller, {
             text: 'Clear Path',
             enabled: true,
             callback: $.proxy(this.clear, this),
+        }, {
+            id: 4,
+            text: 'Set dest',
+            enabled: true,
+            callback: $.proxy(this.set, this),
         });
     },
 
@@ -494,7 +578,8 @@ $.extend(Controller, {
 
         this.setStartPos(centerX - 5, centerY);
         this.setEndPos(centerX + 5, centerY);
-        this.setEndPos2(centerX , centerY);
+        
+        if(Controller.getDest() == "Two") this.setEndPos2(centerX, centerY);
     },
     setStartPos: function(gridX, gridY) {
         this.startX = gridX;
