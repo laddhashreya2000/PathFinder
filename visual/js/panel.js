@@ -37,7 +37,7 @@ var Panel = {
         
         switch (selected_header) {
 
-        case 'astar_header':
+       case 'astar_header':
             allowDiagonal = typeof $('#astar_section ' +
                                      '.allow_diagonal:checked').val() !== 'undefined';
             biDirectional = typeof $('#astar_section ' +
@@ -50,21 +50,15 @@ var Panel = {
             weight = weight >= 1 ? weight : 1; /* if negative or 0, use 1 */
 
             heuristic = $('input[name=astar_heuristic]:checked').val();
-            if (biDirectional) {
-                finder = new PF.BiAStarFinder({
-                    allowDiagonal: allowDiagonal,
-                    dontCrossCorners: dontCrossCorners,
-                    heuristic: PF.Heuristic[heuristic],
-                    weight: weight
-                });
-            } else {
+        
                 finder = new PF.AStarFinder({
                     allowDiagonal: allowDiagonal,
                     dontCrossCorners: dontCrossCorners,
                     heuristic: PF.Heuristic[heuristic],
+                    biDirectional: biDirectional,
                     weight: weight
                 });
-            }
+            
             break;
 
         case 'breadthfirst_header':
