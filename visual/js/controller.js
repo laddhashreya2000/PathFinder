@@ -585,6 +585,11 @@ $.extend(Controller, {
         this.setEndPos(centerX + 5, centerY);
         
         if(Controller.getDest() == "Two") this.setEndPos2(centerX, centerY);
+        else if(this.endX2){
+           Controller.setWalkableAt(this.endX2,this.endY2,true);
+           View.setNormalPos(this.endX2,this.endY2);
+           this.endX2 = this.endY2 = undefined;
+        } 
     },
     setStartPos: function(gridX, gridY) {
         this.startX = gridX;
