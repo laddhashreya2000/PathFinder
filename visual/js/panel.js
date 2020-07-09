@@ -85,19 +85,14 @@ var Panel = {
             dontCrossCorners = typeof $('#bestfirst_section ' +
                                      '.dont_cross_corners:checked').val() !=='undefined';
             heuristic = $('input[name=bestfirst_heuristic]:checked').val();
-            if (biDirectional) {
-                finder = new PF.BiBestFirstFinder({
-                    allowDiagonal: allowDiagonal,
-                    dontCrossCorners: dontCrossCorners,
-                    heuristic: PF.Heuristic[heuristic]
-                });
-            } else {
+            
                 finder = new PF.BestFirstFinder({
                     allowDiagonal: allowDiagonal,
                     dontCrossCorners: dontCrossCorners,
+                    biDirectional: biDirectional,
                     heuristic: PF.Heuristic[heuristic]
                 });
-            }
+            
             break;
 
         case 'dijkstra_header':
@@ -107,17 +102,13 @@ var Panel = {
                                      '.bi-directional:checked').val() !=='undefined';
             dontCrossCorners = typeof $('#dijkstra_section ' +
                                      '.dont_cross_corners:checked').val() !=='undefined';
-            if (biDirectional) {
-                finder = new PF.BiDijkstraFinder({
-                    allowDiagonal: allowDiagonal,
-                    dontCrossCorners: dontCrossCorners
-                });
-            } else {
+          
                 finder = new PF.DijkstraFinder({
                     allowDiagonal: allowDiagonal,
-                    dontCrossCorners: dontCrossCorners
+                    dontCrossCorners: dontCrossCorners,
+                    biDirectional: biDirectional,
                 });
-            }
+            
             break;
 
         case 'jump_point_header':
