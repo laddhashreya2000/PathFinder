@@ -67,12 +67,12 @@ BreadthFirstFinder.prototype.findPath = function(startX, startY, endX, endY, gri
             neighbour = neighbours[i];
 
             if(!neighbour.opened){
-                openList.push(neighbourNode);
+                openList.push(neighbour);
                 neighbour.parent = node;
                 neighbour.opened =true;
                 neighbour.by = by_start;
             }
-            else if(bi && neighbour.by == by_start){
+            else if(bi && neighbour.by == by_end){
                  return Util.biBacktrace(node, neighbour);
             }
         }
@@ -87,7 +87,7 @@ BreadthFirstFinder.prototype.findPath = function(startX, startY, endX, endY, gri
             neighbour = neighbours[i];
 
             if(!neighbour.opened){
-                endList.push(neighbourNode);
+                endList.push(neighbour);
                 neighbour.parent = node;
                 nighbour.opened = true;
                 neighbour.by = by_end;
