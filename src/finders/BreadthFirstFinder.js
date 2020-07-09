@@ -10,6 +10,7 @@ var DiagonalMovement = require('../core/DiagonalMovement');
  * @param {boolean} opt.dontCrossCorners Disallow diagonal movement touching
  *     block corners. Deprecated, use diagonalMovement instead.
  * @param {DiagonalMovement} opt.diagonalMovement Allowed diagonal movement.
+ * @param {boolean} opt.biDirectional whether bidirectional search or not.
  */
 function BreadthFirstFinder(opt) {
     opt = opt || {};
