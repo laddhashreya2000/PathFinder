@@ -39,21 +39,14 @@ function BreadthFirstFinder(opt) {
 BreadthFirstFinder.prototype.findPath = function(startX, startY, endX, endY, grid) {
     var bi = this.biDirectional;
    
-    var openlist = [], endList = [],
+    if(!bi){
+    var openlist = [],
         startnode = grid.getNodeAt(startX, startY),
         endnode   = grid.getNodeAt(endX, endY),
-        neighbours, neighbour, i, node,
-        by_start = 1, by_end =2; 
+        neighbours, neighbour, i, node; 
 
     openList.push(startnode);
     startnode.opened = true;
-    startnode.by = by_start;
-
-    if(bi){
-       endList.push(endnode);
-       endnode.opened = true;
-       endnode.by = by_end;
-    }
 
     while(openList.length){
         node = openList.shift();
@@ -68,16 +61,52 @@ BreadthFirstFinder.prototype.findPath = function(startX, startY, endX, endY, gri
 
             if(!neighbour.opened){
                 openList.push(neighbour);
-                neighbour.parent = node;
-                neighbour.opened =true;
-                neighbour.by = by_start;
+                neighbourNode.parent = node;
+                nighbourNode.opened = true;
             }
-            else if(bi && neighbour.by == by_end){
-                 return Util.biBacktrace(node, neighbour);
+        }
+    }
+
+    return []; 
+   }
+
+  else{
+    var openlist = [],
+        endList = [],
+        startnode = grid.getNodeAt(startX, startY),
+        endnode   = grid.getNodeAt(endX, endY),
+        neighbours, neighbour, i, node, 
+        by_start = 1, by_end = 2; 
+
+    openList.push(startnode);
+    startnode.opened = true;
+    startnode.by = by_start;
+
+    endList.push(endnode);
+    endnode.opened = true;
+    endnode.by = by_end;
+
+    while(openList.length && endList.length){
+        node = openList.shift();
+        node.closed = true;
+
+        neighbours = grid.getNeighbors(node, this.diagonalMovement);
+
+        for(i=0; i<neighbours.length; i++){
+            neighbour = neighbours[i];
+
+            if(!neighbour.opened){
+                openList.push(neighbour);
+                neighbourNode.parent = node;
+                nighbourNode.opened = true;
+                neighbourNode.by = by_start;
+            }
+
+            else if(neighbour.opened == by_end){
+                return Util.biBacktrace(node, neighbour);
             }
         }
 
-      if(bi){
         node = endList.shift();
         node.closed = true;
 
@@ -88,19 +117,18 @@ BreadthFirstFinder.prototype.findPath = function(startX, startY, endX, endY, gri
 
             if(!neighbour.opened){
                 endList.push(neighbour);
-                neighbour.parent = node;
-                nighbour.opened = true;
-                neighbour.by = by_end;
+                neighbourNode.parent = node;
+                nighbourNode.opened = true;
+                neighbourNode.by = by_end;
             }
 
             else if(neighbour.opened == by_start){
                 return Util.biBacktrace(neighbour, node);
             }
-        }    
-      }
+        }
+
+    }
 
     return []; 
 
-};
-
-module.exports = BreadthFirstFinder;
+   }
