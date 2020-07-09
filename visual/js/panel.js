@@ -68,17 +68,13 @@ var Panel = {
                                      '.bi-directional:checked').val() !== 'undefined';
             dontCrossCorners = typeof $('#breadthfirst_section ' +
                                      '.dont_cross_corners:checked').val() !=='undefined';
-            if (biDirectional) {
-                finder = new PF.BiBreadthFirstFinder({
-                    allowDiagonal: allowDiagonal,
-                    dontCrossCorners: dontCrossCorners
-                });
-            } else {
+            
                 finder = new PF.BreadthFirstFinder({
                     allowDiagonal: allowDiagonal,
-                    dontCrossCorners: dontCrossCorners
+                    dontCrossCorners: dontCrossCorners,
+                    biDirectional: biDirectional
                 });
-            }
+            
             break;
 
         case 'bestfirst_header':

@@ -16,6 +16,7 @@ function BreadthFirstFinder(opt) {
     this.allowDiagonal = opt.allowDiagonal;
     this.dontCrossCorners = opt.dontCrossCorners;
     this.diagonalMovement = opt.diagonalMovement;
+    this.biDirectional = opt.biDirectional;
 
     if (!this.diagonalMovement) {
         if (!this.allowDiagonal) {
@@ -36,44 +37,70 @@ function BreadthFirstFinder(opt) {
  *     end positions.
  */
 BreadthFirstFinder.prototype.findPath = function(startX, startY, endX, endY, grid) {
-    var openList = [],
-        diagonalMovement = this.diagonalMovement,
-        startNode = grid.getNodeAt(startX, startY),
-        endNode = grid.getNodeAt(endX, endY),
-        neighbors, neighbor, node, i, l;
+    var bi = this.biDirectional;
+   
+    var openlist = [], endList = [],
+        startnode = grid.getNodeAt(startX, startY),
+        endnode   = grid.getNodeAt(endX, endY),
+        neighbours, neighbour, i, node,
+        by_start = 1, by_end =2; 
 
-    // push the start pos into the queue
-    openList.push(startNode);
-    startNode.opened = true;
+    openList.push(startnode);
+    startnode.opened = true;
+    startnode.by = by_start;
 
-    // while the queue is not empty
-    while (openList.length) {
-        // take the front node from the queue
+    if(bi){
+       endList.push(endnode);
+       endnode.opened = true;
+       endnode.by = by_end;
+    }
+
+    while(openList.length){
         node = openList.shift();
         node.closed = true;
 
-        // reached the end position
-        if (node === endNode) {
-            return Util.backtrace(endNode);
+        if(node == endnode) return Util.backtrace(endnode);
+
+        neighbours = grid.getNeighbors(node, this.diagonalMovement);
+
+        for(i=0; i<neighbours.length; i++){
+            neighbour = neighbours[i];
+
+            if(!neighbour.opened){
+                openList.push(neighbourNode);
+                neighbour.parent = node;
+                neighbour.opened =true;
+                neighbour.by = by_start;
+            }
+            else if(bi && neighbour.by == by_start){
+                 return Util.biBacktrace(node, neighbour);
+            }
         }
 
-        neighbors = grid.getNeighbors(node, diagonalMovement);
-        for (i = 0, l = neighbors.length; i < l; ++i) {
-            neighbor = neighbors[i];
+      if(bi){
+        node = endList.shift();
+        node.closed = true;
 
-            // skip this neighbor if it has been inspected before
-            if (neighbor.closed || neighbor.opened) {
-                continue;
+        neighbours = grid.getNeighbors(node, this.diagonalMovement);
+
+        for(i=0; i<neighbours.length; i++){
+            neighbour = neighbours[i];
+
+            if(!neighbour.opened){
+                endList.push(neighbourNode);
+                neighbour.parent = node;
+                nighbour.opened = true;
+                neighbour.by = by_end;
             }
 
-            openList.push(neighbor);
-            neighbor.opened = true;
-            neighbor.parent = node;
-        }
-    }
-    
-    // fail to find the path
-    return [];
+            else if(neighbour.opened == by_start){
+                return Util.biBacktrace(neighbour, node);
+            }
+        }    
+      }
+
+    return []; 
+
 };
 
 module.exports = BreadthFirstFinder;
