@@ -61,8 +61,8 @@ BreadthFirstFinder.prototype.findPath = function(startX, startY, endX, endY, gri
 
             if(!neighbour.opened){
                 openList.push(neighbour);
-                neighbourNode.parent = node;
-                nighbourNode.opened = true;
+                neighbour.parent = node;
+                nighbour.opened = true;
             }
         }
     }
@@ -97,9 +97,9 @@ BreadthFirstFinder.prototype.findPath = function(startX, startY, endX, endY, gri
 
             if(!neighbour.opened){
                 openList.push(neighbour);
-                neighbourNode.parent = node;
-                nighbourNode.opened = true;
-                neighbourNode.by = by_start;
+                neighbour.parent = node;
+                nighbour.opened = true;
+                neighbour.by = by_start;
             }
 
             else if(neighbour.opened == by_end){
@@ -117,9 +117,9 @@ BreadthFirstFinder.prototype.findPath = function(startX, startY, endX, endY, gri
 
             if(!neighbour.opened){
                 endList.push(neighbour);
-                neighbourNode.parent = node;
-                nighbourNode.opened = true;
-                neighbourNode.by = by_end;
+                neighbour.parent = node;
+                nighbour.opened = true;
+                neighbour.by = by_end;
             }
 
             else if(neighbour.opened == by_start){
