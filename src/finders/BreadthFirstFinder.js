@@ -39,12 +39,12 @@ function BreadthFirstFinder(opt) {
  */
 BreadthFirstFinder.prototype.findPath = function(startX, startY, endX, endY, grid) {
     var bi = this.biDirectional;
-   
+
     if(!bi){
     var openlist = [],
         startnode = grid.getNodeAt(startX, startY),
         endnode   = grid.getNodeAt(endX, endY),
-        neighbours, neighbour, i, node; 
+        neighbours, neighbour, i, node;
 
     openList.push(startnode);
     startnode.opened = true;
@@ -68,7 +68,7 @@ BreadthFirstFinder.prototype.findPath = function(startX, startY, endX, endY, gri
         }
     }
 
-    return []; 
+    return [];
    }
 
   else{
@@ -76,8 +76,8 @@ BreadthFirstFinder.prototype.findPath = function(startX, startY, endX, endY, gri
         endList = [],
         startnode = grid.getNodeAt(startX, startY),
         endnode   = grid.getNodeAt(endX, endY),
-        neighbours, neighbour, i, node, 
-        by_start = 1, by_end = 2; 
+        neighbours, neighbour, i, node,
+        by_start = 1, by_end = 2;
 
     openList.push(startnode);
     startnode.opened = true;
@@ -131,6 +131,8 @@ BreadthFirstFinder.prototype.findPath = function(startX, startY, endX, endY, gri
     }
 
     return [];
-    
+
 }
 };
+
+module.exports = BreadthFirstFinder;
