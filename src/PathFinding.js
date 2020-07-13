@@ -15,8 +15,10 @@ var pathfinding = {
 
 
 try {
+  //for grid in browser
   window.PF = pathfinding;
 }
 catch(err) {
+  //for node, window does not work
   module.exports = pathfinding;
 }

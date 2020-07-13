@@ -103,8 +103,8 @@ var Controller = StateMachine.create({
 $.extend(Controller, {
     gridSize: [64, 36], // number of nodes horizontally and vertically
     operationsPerSecond: 300,
-   
-    getDest: function(){ 
+
+    getDest: function(){
       var destattr =$('input[name=dest]:checked').val();
 
       return destattr;
@@ -154,7 +154,7 @@ $.extend(Controller, {
         var pathA = finder.findPath(
             this.startX, this.startY, this.endX, this.endY, grid
         );
-        
+
      if(this.endX2 !== undefined && Controller.getDest() == "Two"){
         grid1 = this.grid.clone();
         grid2 = this.grid.clone();
@@ -168,26 +168,26 @@ $.extend(Controller, {
         );
 
         var lenA = PF.Util.pathLength(pathA), lenB = PF.Util.pathLength(pathB);
- 
+
        if(lenA+lenB == 0){
           Path = [];
        }
        else{
         if(lenA < lenB){
             pathC.shift();
-            Path = pathA.concat(pathC);  
+            Path = pathA.concat(pathC);
         }
-        
-        else{ 
+
+        else{
             pathC.pop();
             Path = pathB.concat(pathC.reverse());
         }
 
-       if(lenA+lenB < PF.Util.pathLength(Path)){ 
+       if(lenA+lenB < PF.Util.pathLength(Path)){
             pathA.shift();
             Path = (pathB.reverse()).concat(pathA);
        }
-      } 
+      }
        this.path = Path;
      }
 
@@ -587,13 +587,13 @@ $.extend(Controller, {
 
         this.setStartPos(centerX - 5, centerY);
         this.setEndPos(centerX + 5, centerY);
-        
+
         if(Controller.getDest() == "Two") this.setEndPos2(centerX, centerY);
         else if(this.endX2){
            Controller.setWalkableAt(this.endX2,this.endY2,true);
            View.setNormalPos(this.endX2,this.endY2);
            this.endX2 = this.endY2 = undefined;
-        } 
+        }
     },
     setStartPos: function(gridX, gridY) {
         this.startX = gridX;

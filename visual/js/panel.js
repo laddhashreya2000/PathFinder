@@ -29,12 +29,12 @@ var Panel = {
      */
     getFinder: function() {
         var finder, selected_header, heuristic, allowDiagonal, biDirectional, dontCrossCorners, weight, trackRecursion, timeLimit;
-        
+
         selected_header = $(
             '#algorithm_panel ' +
             '.ui-accordion-header[aria-selected=true]'
         ).attr('id');
-        
+
         switch (selected_header) {
 
        case 'astar_header':
@@ -50,7 +50,7 @@ var Panel = {
             weight = weight >= 1 ? weight : 1; /* if negative or 0, use 1 */
 
             heuristic = $('input[name=astar_heuristic]:checked').val();
-        
+
                 finder = new PF.AStarFinder({
                     allowDiagonal: allowDiagonal,
                     dontCrossCorners: dontCrossCorners,
@@ -58,7 +58,7 @@ var Panel = {
                     biDirectional: biDirectional,
                     weight: weight
                 });
-            
+
             break;
 
         case 'breadthfirst_header':
@@ -68,13 +68,13 @@ var Panel = {
                                      '.bi-directional:checked').val() !== 'undefined';
             dontCrossCorners = typeof $('#breadthfirst_section ' +
                                      '.dont_cross_corners:checked').val() !=='undefined';
-            
+
                 finder = new PF.BreadthFirstFinder({
                     allowDiagonal: allowDiagonal,
                     dontCrossCorners: dontCrossCorners,
                     biDirectional: biDirectional
                 });
-            
+
             break;
 
         case 'bestfirst_header':
@@ -85,14 +85,14 @@ var Panel = {
             dontCrossCorners = typeof $('#bestfirst_section ' +
                                      '.dont_cross_corners:checked').val() !=='undefined';
             heuristic = $('input[name=bestfirst_heuristic]:checked').val();
-            
+
                 finder = new PF.BestFirstFinder({
                     allowDiagonal: allowDiagonal,
                     dontCrossCorners: dontCrossCorners,
                     biDirectional: biDirectional,
                     heuristic: PF.Heuristic[heuristic]
                 });
-            
+
             break;
 
         case 'dijkstra_header':
@@ -102,20 +102,20 @@ var Panel = {
                                      '.bi-directional:checked').val() !=='undefined';
             dontCrossCorners = typeof $('#dijkstra_section ' +
                                      '.dont_cross_corners:checked').val() !=='undefined';
-          
+
                 finder = new PF.DijkstraFinder({
                     allowDiagonal: allowDiagonal,
                     dontCrossCorners: dontCrossCorners,
                     biDirectional: biDirectional,
                 });
-            
+
             break;
 
         case 'jump_point_header':
             trackRecursion = typeof $('#jump_point_section ' +
                                      '.track_recursion:checked').val() !== 'undefined';
             heuristic = $('input[name=jump_point_heuristic]:checked').val();
-            
+
             finder = new PF.JumpPointFinder({
               trackJumpRecursion: trackRecursion,
               heuristic: PF.Heuristic[heuristic],
