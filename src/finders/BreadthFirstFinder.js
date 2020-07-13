@@ -38,16 +38,16 @@ function BreadthFirstFinder(opt) {
  *     end positions.
  */
 BreadthFirstFinder.prototype.findPath = function(startX, startY, endX, endY, grid) {
-    var bi = this.biDirectional;
-
-    if(!bi){
-    var openlist = [],
+    var openList = [],
         startnode = grid.getNodeAt(startX, startY),
         endnode   = grid.getNodeAt(endX, endY),
-        neighbours, neighbour, i, node;
+        neighbours, neighbour, i, node,
+        bi = this.biDirectional;
 
     openList.push(startnode);
     startnode.opened = true;
+
+    if(!bi){
 
     while(openList.length){
         node = openList.shift();
@@ -72,17 +72,9 @@ BreadthFirstFinder.prototype.findPath = function(startX, startY, endX, endY, gri
    }
 
   else{
-    var openlist = [],
-        endList = [],
-        startnode = grid.getNodeAt(startX, startY),
-        endnode   = grid.getNodeAt(endX, endY),
-        neighbours, neighbour, i, node,
-        by_start = 1, by_end = 2;
+    var by_start = 1, by_end = 2;
 
-    openList.push(startnode);
-    startnode.opened = true;
     startnode.by = by_start;
-
     endList.push(endnode);
     endnode.opened = true;
     endnode.by = by_end;
