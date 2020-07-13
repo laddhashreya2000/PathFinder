@@ -1,4 +1,4 @@
-module.exports = {
+var pathfinding = {
     'Heap'                      : require('heap'),
     'Node'                      : require('./core/Node'),
     'Grid'                      : require('./core/Grid'),
@@ -12,3 +12,11 @@ module.exports = {
     'IDAStarFinder'             : require('./finders/IDAStarFinder'),
     'JumpPointFinder'           : require('./finders/JumpPointFinder'),
 };
+
+
+try {
+  window.PF = pathfinding;
+}
+catch(err) {
+  module.exports = pathfinding;
+}

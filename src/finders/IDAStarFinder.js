@@ -160,7 +160,3 @@ IDAStarFinder.prototype.findPath = function(startX, startY, endX, endY, grid){
 
 
 module.exports = IDAStarFinder;
-<<<<<<< HEAD
-=======
-    
->>>>>>> 94ae2ddf771dad19aacc310a1b8c7f1030b7cc25
