@@ -111,7 +111,8 @@ IDAStarFinder.prototype.findPath = function(startX, startY, endX, endY, grid){
 
          neighbors = grid.getNeighbors(node, this.diagonalMovement);
 
-         for(i=0; min=Infinity; i<neighbors.length; i++){
+         for(i=0; i<neighbors.length; i++){
+              min=Infinity;
               neighbor = neighbors[i];
                           
               if(this.trackRecursion){
