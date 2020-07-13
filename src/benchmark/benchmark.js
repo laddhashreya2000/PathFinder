@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 var colors    = require('colors');
-var PF        = require('..');
+var PF        = require('../PathFinding');
 var parseMap  = require('./parse_map').parse;
 var parseScen = require('./parse_scen').parse;
 var testCases = require('./test_cases');

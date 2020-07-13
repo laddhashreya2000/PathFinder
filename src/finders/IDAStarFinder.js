@@ -91,13 +91,13 @@ IDAStarFinder.prototype.findPath = function(startX, startY, endX, endY, grid){
      * @return {Object} either a number with the new optimal cut-off depth,
      * or a valid node instance, in which case a path was found.
      */
- 
+
     var search = function(node, g, cutoff, route, depth){
          visitedNode++;
-         
-         if(this.timeLimit > 0 && 
+
+         if(this.timeLimit > 0 &&
             new Date().getTime() - startTime > this.timeLimit*1000) return Infinity;
-       
+
          var f = g + h(node, end)*this.weight;
 
          if(f> cutoff) return f;
@@ -114,7 +114,7 @@ IDAStarFinder.prototype.findPath = function(startX, startY, endX, endY, grid){
          for(i=0; i<neighbors.length; i++){
               min=Infinity;
               neighbor = neighbors[i];
-                          
+
               if(this.trackRecursion){
 
                   neighbor.retainCount = neighbor.retainCount +1 || 1;
@@ -123,7 +123,7 @@ IDAStarFinder.prototype.findPath = function(startX, startY, endX, endY, grid){
               }
 
               t = search(neighbor, g+cost(node,neighbor), cutoff, route, depth+1);
-          
+
               if(t instanceof Node){
                   route[depth] = [node.x, node.y];
                   return t;
@@ -131,33 +131,36 @@ IDAStarFinder.prototype.findPath = function(startX, startY, endX, endY, grid){
 
               if(this.trackRecursion && (--neighbor.retainCount) === 0)
                   neighbor.tested = false;
-          
+
               if(t< min) min = t;
 
          }
-        
+
          return min;
-    }.bind(this);    
-     
+    }.bind(this);
+
     var start = grid.getNodeAt(startX, startY);
     var end = grid.getNodeAt(endX, endY);
- 
+
     var route, cutoff = h(start, end), j, t;
 
     for(j=0; true; j++){
        route = [];
-       
+
        t = search(start, 0, cutoff, route, 0);
 
        if(t instanceof Node) return route;
        if(t == Infinity) return [];
-     
+
        cutoff = t;
     }
-    
+
     return [];
  };
 
 
 module.exports = IDAStarFinder;
+<<<<<<< HEAD
+=======
     
+>>>>>>> 94ae2ddf771dad19aacc310a1b8c7f1030b7cc25

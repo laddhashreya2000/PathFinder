@@ -1,15 +1,24 @@
 {
   "name": "microsoft-engage-2020",
   "version": "1.0.0",
-  "description": "Earth is no safe place to live. Lets build tools to hover at mars.",
-  "main": "index.js",
+  "description": "Find shortest path from rover to destination",
+  "main": "./myindex.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "webpack-dev-server --mode development",
     "build": "webpack --mode development"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "pathfinding",
+    "astar",
+    "dijkstra",
+    "game",
+    "algorithm",
+    "jumppoint",
+    "depthfirst",
+    "breadthfirst"
+  ],
+  "author": "Shreya Neha Mukta",
   "devDependencies": {
     "@babel/core": "^7.10.4",
     "@babel/preset-env": "^7.10.4",
