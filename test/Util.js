@@ -1,8 +1,4 @@
 var PF = require('../myindex');
-var mocha = require('mocha');
-var describe = mocha.describe;
-var it = mocha.it;
-var assert = require('chai').assert;
 
 describe('Utility functions', function () {
     describe('interpolate', function () {

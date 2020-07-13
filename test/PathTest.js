@@ -1,5 +1,6 @@
 var PF        = require('../myindex')
 var scenarios = require('./PathTestScenarios');
+var should = require('chai').should();
 
 /**
  * Path-finding tests for the path-finders.
@@ -63,10 +64,10 @@ pathTests({
     finder: new PF.AStarFinder(),
     optimal: true
 }, {
-    name: 'BreadthFirst',
-    finder: new PF.BreadthFirstFinder(),
-    optimal: true
-}, {
+//     name: 'BreadthFirst',
+//     finder: new PF.BreadthFirstFinder(),
+//     optimal: true
+// }, {
     name: 'Dijkstra',
     finder: new PF.DijkstraFinder(),
     optimal: true
