@@ -190,7 +190,7 @@ $.extend(Controller, {
         this.loop();
         // => searching
     },
-	makeGraph: function(endNodes, possible){
+	makeGraph: function(endNodes){
         var n = endNodes.length;
         var graph = new Array(n); 
         for (var i = 0; i < graph.length; i++) { 
@@ -557,7 +557,7 @@ $.extend(Controller, {
             this.dragEnd3();
             return;
         }
-        if (this.can('dragEnd4') && this.isEndPos2(gridX, gridY,4)) {
+        if (this.can('dragEnd4') && this.isEndPos(gridX, gridY,4)) {
             this.dragEnd4();
             return;
         }
