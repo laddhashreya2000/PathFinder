@@ -140,6 +140,9 @@ $.extend(Controller, {
             numCols: numCols,
             numRows: numRows
         });
+		
+		this.endNodes = new Array;
+		
         View.generateGrid(function() {
             Controller.setDefaultStartEndPos();
             Controller.bindEvents();
