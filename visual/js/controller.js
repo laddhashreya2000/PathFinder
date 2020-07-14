@@ -82,6 +82,16 @@ var Controller = StateMachine.create({
             from: ['ready', 'finished'],
             to:   'draggingEnd2'
         },
+		{
+            name: 'dragEnd3',
+            from: ['ready', 'finished'],
+            to:   'draggingEnd3'
+        },
+        {
+            name: 'dragEnd4',
+            from: ['ready', 'finished'],
+            to:   'draggingEnd4'
+        },
         {
             name: 'drawWall',
             from: ['ready', 'finished'],
@@ -94,14 +104,14 @@ var Controller = StateMachine.create({
         },
         {
             name: 'rest',
-            from: ['draggingStart', 'draggingEnd', 'draggingEnd2', 'drawingWall', 'erasingWall'],
+            from: ['draggingStart', 'draggingEnd', 'draggingEnd2', 'draggingEnd3', 'draggingEnd4', 'drawingWall', 'erasingWall'],
             to  : 'ready'
         },
     ],
 });
 
 $.extend(Controller, {
-    // gridSize: [64, 36], // number of nodes horizontally and vertically
+    gridSize: [64, 36], // number of nodes horizontally and vertically
     operationsPerSecond: 300,
     getGridSize: function() {
       var width = Math.floor($(window).width()/View.nodeSize) +1,
@@ -152,65 +162,89 @@ $.extend(Controller, {
         // => erasingWall
     },
     onsearch: function(event, from, to) {
-        var grid,
-            timeStart, timeEnd,
-            finder = Panel.getFinder();
+        var timeStart, timeEnd;
 
         timeStart = window.performance ? performance.now() : Date.now();
-        grid = this.grid.clone();
-
-        var pathA = finder.findPath(
-            this.startX, this.startY, this.endX, this.endY, grid
-        );
-
-     if(this.endX2 !== undefined && Controller.getDest() == "Two"){
-        grid1 = this.grid.clone();
-        grid2 = this.grid.clone();
-        var Path;
-        var pathB = finder.findPath(
-            this.startX, this.startY, this.endX2, this.endY2, grid1
-        );
-
-        var pathC = finder.findPath(
-            this.endX, this.endY, this.endX2, this.endY2, grid2
-        );
-
-        var lenA = PF.Util.pathLength(pathA), lenB = PF.Util.pathLength(pathB);
-
-       if(lenA+lenB == 0){
-          Path = [];
-       }
-       else{
-        if(lenA < lenB){
-            pathC.shift();
-            Path = pathA.concat(pathC);
-        }
-
-        else{
-            pathC.pop();
-            Path = pathB.concat(pathC.reverse());
-        }
-
-       if(lenA+lenB < PF.Util.pathLength(Path)){
-            pathA.shift();
-            Path = (pathB.reverse()).concat(pathA);
-       }
-      }
-       this.path = Path;
-     }
-
-     else this.path = pathA;
-
-  //      this.path = finder.findPath(
-  //          this.startX, this.startY, this.endX, this.endY, grid
-  //      );
-
+   
+        var gr = this.makeGraph(this.endNodes, possible);
+     	var n = this.endNodes.length;
+        var pathArray = new Array;
+        var order = {p: new Array};
+        var len = this.getPath(1,gr,0,n, order);
+		var f = order.p.reverse(),  l = f.length;
+		
+		for(var j=0; j<l-1; j++){
+			 if(f[j+1] > f[j] ) gr[f[j]][f[j+1]][1].reverse();
+		     pathArray = pathArray.concat(gr[f[j]][f[j+1]][1]);	
+		}	
+		
+        this.path = pathArray;
+     
         this.operationCount = this.operations.length;
         timeEnd = window.performance ? performance.now() : Date.now();
         this.timeSpent = (timeEnd - timeStart).toFixed(4);
 
         this.loop();
         // => searching
+    },
+	makeGraph: function(endNodes, possible){
+        var n = endNodes.length;
+        var graph = new Array(n); 
+        for (var i = 0; i < graph.length; i++) { 
+            graph[i] = new Array(n); 
+        } 
+
+        for(var i = 0; i < graph.length; i++){
+            for(var j = i; j < graph.length; j++){
+                var Grid,finder = Panel.getFinder();
+                Grid = this.grid.clone();
+
+                var dist = finder.findPath(
+                  endNodes[i][0], endNodes[i][1], endNodes[j][0], endNodes[j][1], Grid
+                );
+				
+                var len = PF.Util.pathLength(dist);
+				
+				graph[j][i] = new Array(2);
+                graph[j][i][0]=len;
+                graph[j][i][1]=dist;
+                graph[i][j] = new Array(2);
+                graph[i][j][0]=len;
+                graph[i][j][1]= dist.reverse();
+            }
+        }
+       
+        return graph;
+
+    },
+    getPath: function(bit_mask,gr,pos,n, order){
+        if (bit_mask === ((1<<n)-1)) {
+            order.p.push(pos);			
+			return 0; 
+        } 
+        
+        var min_len = 1000000;		
+		
+        for (var i = 1; i < n; i++) { 
+            if (!(bit_mask & (1<<i))) { 
+			    var new_o = {p: new Array};
+				
+				if(!gr[pos][i][0]){
+				    order.p = new_o.p;	
+					return 0; 
+				}
+				
+                var new_len = Controller.getPath(bit_mask|(1<<i), gr, i, n, new_o);
+				new_len += gr[pos][i][0] ;
+				
+                if(new_len < min_len) {			
+					min_len = new_len;
+					order.p = new_o.p;
+                }				
+            } 
+        }
+        order.p.push(pos);
+        return min_len;		
     },
     onrestart: function() {
         // When clearing the colorized nodes, there may be
@@ -508,12 +542,20 @@ $.extend(Controller, {
             this.dragStart();
             return;
         }
-        if (this.can('dragEnd') && this.isEndPos(gridX, gridY)) {
+        if (this.can('dragEnd') && this.isEndPos(gridX, gridY,1)) {
             this.dragEnd();
             return;
         }
-        if (this.can('dragEnd2') && this.isEndPos2(gridX, gridY)) {
+        if (this.can('dragEnd2') && this.isEndPos(gridX, gridY,2)) {
             this.dragEnd2();
+            return;
+        }
+		if (this.can('dragEnd3') && this.isEndPos(gridX, gridY,3)) {
+            this.dragEnd3();
+            return;
+        }
+        if (this.can('dragEnd4') && this.isEndPos2(gridX, gridY,4)) {
+            this.dragEnd4();
             return;
         }
         if (this.can('drawWall') && grid.isWalkableAt(gridX, gridY)) {
@@ -542,12 +584,22 @@ $.extend(Controller, {
             break;
         case 'draggingEnd':
             if (grid.isWalkableAt(gridX, gridY)) {
-                this.setEndPos(gridX, gridY);
+                this.setEndPos(gridX, gridY,1);
             }
             break;
         case 'draggingEnd2':
             if (grid.isWalkableAt(gridX, gridY)) {
-                this.setEndPos2(gridX, gridY);
+                this.setEndPos(gridX, gridY,2);
+            }
+            break;
+		case 'draggingEnd3':
+            if (grid.isWalkableAt(gridX, gridY)) {
+                this.setEndPos(gridX, gridY,3);
+            }
+            break;
+        case 'draggingEnd4':
+            if (grid.isWalkableAt(gridX, gridY)) {
+                this.setEndPos(gridX, gridY,4);
             }
             break;
         case 'drawingWall':
@@ -605,44 +657,76 @@ $.extend(Controller, {
         centerY = Math.floor(height / 2 / nodeSize);
 
         this.setStartPos(centerX - 5, centerY);
-        this.setEndPos(centerX + 5, centerY);
-
-        if(Controller.getDest() == "Two") this.setEndPos2(centerX, centerY);
-        else if(this.endX2){
-           Controller.setWalkableAt(this.endX2,this.endY2,true);
-           View.setNormalPos(this.endX2,this.endY2);
-           this.endX2 = this.endY2 = undefined;
+        this.setEndPos(centerX + 5, centerY, 1);
+		
+		if(Controller.getDest() === "Two") {
+            this.setEndPos(centerX, centerY+5, 2);
+            
+			if(this.endNodes[4]){
+               this.setEndPos(64*nodeSize, 36*nodeSize, 4);
+			   this.endNodes.splice(4);
+            }
+			
+            if(this.endNodes[3]){
+               this.setEndPos(64*nodeSize, 36*nodeSize, 3);
+			   this.endNodes.splice(3);
+            }
+        }
+        else if(Controller.getDest() === "Three"){
+            this.setEndPos(centerX, centerY+5, 2);
+            this.setEndPos(centerX, centerY-5, 3); 
+			
+			if(this.endNodes[4]){
+               this.setEndPos(64*nodeSize, 36*nodeSize, 4);
+			   this.endNodes.splice(4);
+            }
+        }
+		else if(Controller.getDest() === "Four"){
+            this.setEndPos(centerX, centerY+5, 2);
+            this.setEndPos(centerX, centerY-5, 3); 
+			this.setEndPos(centerX-10, centerY, 4);
+			
+		}	
+        else{
+			if(this.endNodes[4]){
+               this.setEndPos(64*nodeSize, 36*nodeSize, 4);
+			   this.endNodes.splice(4);
+            }
+			
+			if(this.endNodes[3]){
+               this.setEndPos(64*nodeSize, 36*nodeSize, 3);
+			   this.endNodes.splice(3);
+            }
+			
+            if(this.endNodes[2]){
+               this.setEndPos(64*nodeSize, 36*nodeSize, 2);
+			   this.endNodes.splice(2);
+            }
         }
     },
     setStartPos: function(gridX, gridY) {
-        this.startX = gridX;
-        this.startY = gridY;
+        this.endNodes[0] = [gridX, gridY];
         View.setStartPos(gridX, gridY);
     },
-    setEndPos: function(gridX, gridY) {
-        this.endX = gridX;
-        this.endY = gridY;
-        View.setEndPos(gridX, gridY);
-    },
-    setEndPos2: function(gridX, gridY) {
-        this.endX2 = gridX;
-        this.endY2 = gridY;
-        View.setEndPos2(gridX, gridY);
+    setEndPos: function(gridX, gridY, n) {
+        this.endNodes[n] = [gridX, gridY];
+        View.setEndPos(gridX, gridY,n);
     },
     setWalkableAt: function(gridX, gridY, walkable) {
-        this.grid.setWalkableAt(gridX, gridY, walkable);
-        View.setAttributeAt(gridX, gridY, 'walkable', walkable);
+		if(this.grid.isInside(gridX, gridY)){
+           this.grid.setWalkableAt(gridX, gridY, walkable);
+           View.setAttributeAt(gridX, gridY, 'walkable', walkable);
+		}
     },
     isStartPos: function(gridX, gridY) {
         return gridX === this.startX && gridY === this.startY;
     },
-    isEndPos: function(gridX, gridY) {
-        return (gridX === this.endX && gridY === this.endY);
-    },
-    isEndPos2: function(gridX, gridY) {
-        return (gridX === this.endX2 && gridY === this.endY2);
+    isEndPos: function(gridX, gridY,n) {
+        if(this.endNodes[n] === undefined) return false;
+		return (gridX === this.endNodes[n][0] && gridY === this.endNodes[n][1]);
     },
     isStartOrEndPos: function(gridX, gridY) {
-        return this.isStartPos(gridX, gridY) || this.isEndPos(gridX, gridY) || this.isEndPos2(gridX, gridY);
+        return this.isStartPos(gridX, gridY) || this.isEndPos(gridX, gridY, 1) || this.isEndPos(gridX, gridY, 2)
+		    || this.isEndPos(gridX, gridY, 3) || this.isEndPos(gridX, gridY, 4);
     },
 });

@@ -129,10 +129,20 @@ var View = {
             this.startNode.attr({ x: coord[0], y: coord[1] }).toFront();
         }
     },
-    setEndPos: function(gridX, gridY) {
+    setEndPos: function(gridX, gridY, n) {
         var coord = this.toPageCoordinate(gridX, gridY);
-        if (!this.endNode) {
-            this.endNode = this.paper.rect(
+		if (!this.endNode)  {
+			this.endNode = new Array;
+            this.endNode[n-1] = this.paper.rect(
+                coord[0],
+                coord[1],
+                this.nodeSize,
+                this.nodeSize
+            ).attr(this.nodeStyle.normal)
+             .animate(this.nodeStyle.end, 1000);
+        }
+		else if(!this.endNode[n-1]){
+            this.endNode[n-1] = this.paper.rect(
                 coord[0],
                 coord[1],
                 this.nodeSize,
@@ -140,33 +150,10 @@ var View = {
             ).attr(this.nodeStyle.normal)
              .animate(this.nodeStyle.end, 1000);
         } else {
-            this.endNode.attr({ x: coord[0], y: coord[1] }).toFront();
+            this.endNode[n-1].attr({ x: coord[0], y: coord[1] }).toFront();
         }
     },
-    setEndPos2: function(gridX, gridY) {
-        var coord = this.toPageCoordinate(gridX, gridY);
-        if (!this.endNode2) {
-            this.endNode2 = this.paper.rect(
-                coord[0],
-                coord[1],
-                this.nodeSize,
-                this.nodeSize
-            ).attr(this.nodeStyle.normal)
-             .animate(this.nodeStyle.end, 1000);
-        } else {
-            this.endNode2.attr({ x: coord[0], y: coord[1] }).toFront();
-        }
-    },
-    setNormalPos: function(gridX, gridY) {
-        var coord = this.toPageCoordinate(gridX, gridY);
-        this.paper.rect(
-                coord[0],
-                coord[1],
-                this.nodeSize,
-                this.nodeSize
-            ).attr(this.nodeStyle.normal)
-             .animate(this.nodeStyle.normal, 2000);
-    },
+    
     /**
      * Set the attribute of the node at the given coordinate.
      */
