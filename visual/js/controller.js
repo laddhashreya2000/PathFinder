@@ -101,8 +101,15 @@ var Controller = StateMachine.create({
 });
 
 $.extend(Controller, {
-    gridSize: [64, 36], // number of nodes horizontally and vertically
+    // gridSize: [64, 36], // number of nodes horizontally and vertically
     operationsPerSecond: 300,
+    getGridSize: function() {
+      var width = Math.floor($(window).width()/View.nodeSize) +1,
+          height = Math.floor($(window).height()/View.nodeSize) + 1;
+      console.log(width);
+      console.log(height);
+      this.gridSize = [width,height];
+    },
 
     getDest: function(){
       var destattr =$('input[name=dest]:checked').val();
@@ -113,6 +120,7 @@ $.extend(Controller, {
      * Asynchronous transition from `none` state to `ready` state.
      */
     onleavenone: function() {
+        Controller.getGridSize();
         var numCols = this.gridSize[0],
             numRows = this.gridSize[1];
 
@@ -210,6 +218,11 @@ $.extend(Controller, {
         // Therefore, we have to defer the `abort` routine to make sure
         // that all the animations are done by the time we clear the colors.
         // The same reason applies for the `onreset` event handler.
+        // View.showStats({
+        //     pathLength: null,
+        //     timeSpent:  null,
+        //     operationCount: null,
+        // });
         setTimeout(function() {
             Controller.clearOperations();
             Controller.clearFootprints();
@@ -225,6 +238,11 @@ $.extend(Controller, {
         // => searching
     },
     oncancel: function(event, from, to) {
+        // View.showStats({
+        //     pathLength: '0',
+        //     timeSpent:  '0',
+        //     operationCount: '0',
+        // });
         this.clearOperations();
         this.clearFootprints();
         // => ready
@@ -477,6 +495,7 @@ $.extend(Controller, {
         View.clearBlockedNodes();
     },
     buildNewGrid: function() {
+        Controller.getGridSize();
         this.grid = new PF.Grid(this.gridSize[0], this.gridSize[1]);
     },
     mousedown: function (event) {
