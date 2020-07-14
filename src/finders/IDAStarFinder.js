@@ -119,7 +119,7 @@ IDAStarFinder.prototype.findPath = function(startX, startY, endX, endY, grid){
 
                   neighbor.retainCount = neighbor.retainCount +1 || 1;
 
-                  if(neighbour.tested !== true) neighbour.tested = true;
+                  if(neighbor.tested !== true) neighbor.tested = true;
               }
 
               t = search(neighbor, g+cost(node,neighbor), cutoff, route, depth+1);
