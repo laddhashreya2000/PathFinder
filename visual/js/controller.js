@@ -169,7 +169,7 @@ $.extend(Controller, {
 
         timeStart = window.performance ? performance.now() : Date.now();
    
-        var gr = this.makeGraph(this.endNodes, possible);
+        var gr = this.makeGraph(this.endNodes);
      	var n = this.endNodes.length;
         var pathArray = new Array;
         var order = {p: new Array};
