@@ -113,6 +113,7 @@ var Controller = StateMachine.create({
 $.extend(Controller, {
     gridSize: [64, 36], // number of nodes horizontally and vertically
     operationsPerSecond: 300,
+
     getGridSize: function() {
       var width = Math.floor($(window).width()/View.nodeSize) +1,
           height = Math.floor($(window).height()/View.nodeSize) + 1;
@@ -140,9 +141,9 @@ $.extend(Controller, {
             numCols: numCols,
             numRows: numRows
         });
-		
-		this.endNodes = new Array;
-		
+
+		    this.endNodes = new Array;
+
         View.generateGrid(function() {
             Controller.setDefaultStartEndPos();
             Controller.bindEvents();
@@ -165,24 +166,25 @@ $.extend(Controller, {
         // => erasingWall
     },
     onsearch: function(event, from, to) {
+        View.dynamicStats('Searching');
         var timeStart, timeEnd;
 
         timeStart = window.performance ? performance.now() : Date.now();
-   
+
         var gr = this.makeGraph(this.endNodes);
      	var n = this.endNodes.length;
         var pathArray = new Array;
         var order = {p: new Array};
         var len = this.getPath(1,gr,0,n, order);
 		var f = order.p.reverse(),  l = f.length;
-		
+
 		for(var j=0; j<l-1; j++){
 			 if(f[j+1] > f[j] ) gr[f[j]][f[j+1]][1].reverse();
-		     pathArray = pathArray.concat(gr[f[j]][f[j+1]][1]);	
-		}	
-		
+		     pathArray = pathArray.concat(gr[f[j]][f[j+1]][1]);
+		}
+
         this.path = pathArray;
-     
+
         this.operationCount = this.operations.length;
         timeEnd = window.performance ? performance.now() : Date.now();
         this.timeSpent = (timeEnd - timeStart).toFixed(4);
@@ -192,10 +194,10 @@ $.extend(Controller, {
     },
 	makeGraph: function(endNodes){
         var n = endNodes.length;
-        var graph = new Array(n); 
-        for (var i = 0; i < graph.length; i++) { 
-            graph[i] = new Array(n); 
-        } 
+        var graph = new Array(n);
+        for (var i = 0; i < graph.length; i++) {
+            graph[i] = new Array(n);
+        }
 
         for(var i = 0; i < graph.length; i++){
             for(var j = i; j < graph.length; j++){
@@ -205,9 +207,9 @@ $.extend(Controller, {
                 var dist = finder.findPath(
                   endNodes[i][0], endNodes[i][1], endNodes[j][0], endNodes[j][1], Grid
                 );
-				
+
                 var len = PF.Util.pathLength(dist);
-				
+
 				graph[j][i] = new Array(2);
                 graph[j][i][0]=len;
                 graph[j][i][1]=dist;
@@ -216,38 +218,38 @@ $.extend(Controller, {
                 graph[i][j][1]= dist.reverse();
             }
         }
-       
+
         return graph;
 
     },
     getPath: function(bit_mask,gr,pos,n, order){
         if (bit_mask === ((1<<n)-1)) {
-            order.p.push(pos);			
-			return 0; 
-        } 
-        
-        var min_len = 1000000;		
-		
-        for (var i = 1; i < n; i++) { 
-            if (!(bit_mask & (1<<i))) { 
+            order.p.push(pos);
+			return 0;
+        }
+
+        var min_len = 1000000;
+
+        for (var i = 1; i < n; i++) {
+            if (!(bit_mask & (1<<i))) {
 			    var new_o = {p: new Array};
-				
+
 				if(!gr[pos][i][0]){
-				    order.p = new_o.p;	
-					return 0; 
+				    order.p = new_o.p;
+					return 0;
 				}
-				
+
                 var new_len = Controller.getPath(bit_mask|(1<<i), gr, i, n, new_o);
 				new_len += gr[pos][i][0] ;
-				
-                if(new_len < min_len) {			
+
+                if(new_len < min_len) {
 					min_len = new_len;
 					order.p = new_o.p;
-                }				
-            } 
+                }
+            }
         }
         order.p.push(pos);
-        return min_len;		
+        return min_len;
     },
     onrestart: function() {
         // When clearing the colorized nodes, there may be
@@ -260,6 +262,7 @@ $.extend(Controller, {
         //     timeSpent:  null,
         //     operationCount: null,
         // });
+        View.dynamicStats('Restarting');
         setTimeout(function() {
             Controller.clearOperations();
             Controller.clearFootprints();
@@ -269,8 +272,10 @@ $.extend(Controller, {
     },
     onpause: function(event, from, to) {
         // => paused
+        View.dynamicStats('Paused. Start searching again');
     },
     onresume: function(event, from, to) {
+        View.dynamicStats('Resuming');
         this.loop();
         // => searching
     },
@@ -282,6 +287,7 @@ $.extend(Controller, {
         // });
         this.clearOperations();
         this.clearFootprints();
+        View.dynamicStats('Cancelled. Start searching again');
         // => ready
     },
     onfinish: function(event, from, to) {
@@ -296,6 +302,7 @@ $.extend(Controller, {
     onclear: function(event, from, to) {
         this.clearOperations();
         this.clearFootprints();
+        View.dynamicStats('Path Cleared. Start searching again');
         // => ready
     },
     onmodify: function(event, from, to) {
@@ -312,6 +319,7 @@ $.extend(Controller, {
     },
     onreset: function(event, from, to) {
         setTimeout(function() {
+            View.dynamicStats('Reset done. Start searching again')
             Controller.clearOperations();
             Controller.clearAll();
             Controller.buildNewGrid();
@@ -661,15 +669,15 @@ $.extend(Controller, {
 
         this.setStartPos(centerX - 5, centerY);
         this.setEndPos(centerX + 5, centerY, 1);
-		
+
 		if(Controller.getDest() === "Two") {
             this.setEndPos(centerX, centerY+5, 2);
-            
+
 			if(this.endNodes[4]){
                this.setEndPos(64*nodeSize, 36*nodeSize, 4);
 			   this.endNodes.splice(4);
             }
-			
+
             if(this.endNodes[3]){
                this.setEndPos(64*nodeSize, 36*nodeSize, 3);
 			   this.endNodes.splice(3);
@@ -677,8 +685,8 @@ $.extend(Controller, {
         }
         else if(Controller.getDest() === "Three"){
             this.setEndPos(centerX, centerY+5, 2);
-            this.setEndPos(centerX, centerY-5, 3); 
-			
+            this.setEndPos(centerX, centerY-5, 3);
+
 			if(this.endNodes[4]){
                this.setEndPos(64*nodeSize, 36*nodeSize, 4);
 			   this.endNodes.splice(4);
@@ -686,21 +694,21 @@ $.extend(Controller, {
         }
 		else if(Controller.getDest() === "Four"){
             this.setEndPos(centerX, centerY+5, 2);
-            this.setEndPos(centerX, centerY-5, 3); 
+            this.setEndPos(centerX, centerY-5, 3);
 			this.setEndPos(centerX-10, centerY, 4);
-			
-		}	
+
+		}
         else{
 			if(this.endNodes[4]){
                this.setEndPos(64*nodeSize, 36*nodeSize, 4);
 			   this.endNodes.splice(4);
             }
-			
+
 			if(this.endNodes[3]){
                this.setEndPos(64*nodeSize, 36*nodeSize, 3);
 			   this.endNodes.splice(3);
             }
-			
+
             if(this.endNodes[2]){
                this.setEndPos(64*nodeSize, 36*nodeSize, 2);
 			   this.endNodes.splice(2);

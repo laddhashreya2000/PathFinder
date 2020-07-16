@@ -153,7 +153,7 @@ var View = {
             this.endNode[n-1].attr({ x: coord[0], y: coord[1] }).toFront();
         }
     },
-    
+
     /**
      * Set the attribute of the node at the given coordinate.
      */
@@ -300,7 +300,8 @@ var View = {
     showStats: function(opts) {
         var len = Math.round(opts.pathLength * 100) / 100;
         if(len==0) {
-            len = len + ' PATH DOES NOT EXIST';
+            len = 'PATH DOES NOT EXIST';
+            alert("No path found!!! The rover can't reach the destination.");
         }
         var texts = [
             'length: ' + len,
@@ -308,6 +309,9 @@ var View = {
             'operations: ' + opts.operationCount
         ];
         $('#stats').show().html(texts.join('<br>'));
+    },
+    dynamicStats: function(msg) {
+      $('#stats').show().html(msg);
     },
     setCoordDirty: function(gridX, gridY, isDirty) {
         var x, y,
