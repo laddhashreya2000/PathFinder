@@ -111,9 +111,16 @@ var Controller = StateMachine.create({
 });
 
 $.extend(Controller, {
-    gridSize: [64, 36], // number of nodes horizontally and vertically
     operationsPerSecond: 300,
-
+    // getNodeSize: function() {
+    //   this.
+    // },
+    // init: function() {
+    //   var zoom = $('input[name=nodesize]').val();
+    //   View.getNodeSize(zoom);
+    //   Controller.onleavenone();
+    //   Controller.setDefaultStartEndPos();
+    // },
     getGridSize: function() {
       var width = Math.floor($(window).width()/View.nodeSize) +1,
           height = Math.floor($(window).height()/View.nodeSize) + 1;
@@ -124,7 +131,6 @@ $.extend(Controller, {
 
     getDest: function(){
       var destattr =$('input[name=dest]:checked').val();
-
       return destattr;
     },
     /**

@@ -22,6 +22,9 @@ var Panel = {
             top: $('#instructions_panel').offset().top + $('#instructions_panel').outerHeight() + 20
         });
         $('#button2').attr('disabled', 'disabled');
+        $('#NodeSize').css({
+            top: $('#instructions_panel').offset().top + $('#instructions_panel').outerHeight() + 20 + $('#NoOfDest').offset().top + $('NoOfDest').outerHeight() + 20
+        });
     },
     /**
      * Get the user selected path-finder.
