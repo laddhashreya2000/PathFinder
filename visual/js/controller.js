@@ -730,7 +730,7 @@ $.extend(Controller, {
 		}
     },
     isStartPos: function(gridX, gridY) {
-        return gridX === this.endNodes[0][0] && gridY === this.endNode[0][1];
+        return gridX === this.endNodes[0][0] && gridY === this.endNodes[0][1];
     },
     isEndPos: function(gridX, gridY,n) {
         if(this.endNodes[n] === undefined) return false;
