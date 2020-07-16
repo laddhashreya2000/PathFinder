@@ -23,7 +23,7 @@ var Panel = {
         });
         $('#button2').attr('disabled', 'disabled');
         $('#NodeSize').css({
-            top: $('#instructions_panel').offset().top + $('#instructions_panel').outerHeight() + 20 + $('#NoOfDest').offset().top + $('NoOfDest').outerHeight() + 20
+            top: $('#instructions_panel').offset().top + $('#instructions_panel').outerHeight() + $('#NoOfDest').offset().top + $('NoOfDest').outerHeight() - 10
         });
     },
     /**

@@ -17,7 +17,7 @@ h1, h2, h3, h4, h5, h6 {
 .header_title {
     font-size: 120%;
     font-weight: bold;
-    padding-bottom: 5px;
+    padding-bottom: 3px;
     margin-top: -10px;
 }
 
@@ -64,7 +64,7 @@ h1, h2, h3, h4, h5, h6 {
 #NoOfDest {
     top: 260px;
     left: 20px;
-    width: 170px;
+    width: 160px;
 }
 
 #NodeSize {
@@ -112,7 +112,7 @@ button:hover {
 .options {
     padding: 2px;
     font-size: 15px;
-    margin: 2px 22px 0;
+    margin: 2px 2px 2px 2px;
 }
 
 #stats {
