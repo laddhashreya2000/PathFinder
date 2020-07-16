@@ -14,6 +14,12 @@ var Panel = {
         });
         $('#hide_instructions').click(function() {
             $('#instructions_panel').slideUp();
+            $('#NoOfDest').css({
+                top: 20
+            });
+            $('#NodeSize').css({
+                top: $('#NoOfDest').offset().top + $('NoOfDest').outerHeight() - 10
+            });
         });
         $('#play_panel').css({
             top: $algo.offset().top + $algo.outerHeight() + 20
