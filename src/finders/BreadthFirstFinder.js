@@ -72,7 +72,8 @@ BreadthFirstFinder.prototype.findPath = function(startX, startY, endX, endY, gri
    }
 
   else{
-    var by_start = 1, by_end = 2;
+    var by_start = 1, by_end = 2,
+        endList=[];
 
     startnode.by = by_start;
     endList.push(endnode);
