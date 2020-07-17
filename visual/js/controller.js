@@ -121,6 +121,31 @@ $.extend(Controller, {
     //   Controller.onleavenone();
     //   Controller.setDefaultStartEndPos();
     // },
+    showinstructions: function() {
+      // alert("#instructions_panel");
+      // $(window).resize(function () {
+
+      //only do it if the dialog box is not hidden
+      // if (!$('#instructions_panel').is(':hidden')) popup();
+      // });
+
+
+    	// get the screen height and width
+    	var maskHeight = $(document).height();
+    	var maskWidth = $(window).width();
+
+    	// calculate the values for center alignment
+    	var dialogTop =  (maskHeight/3) - ($('#instructions_panel').height());
+    	var dialogLeft = (maskWidth/2) - ($('#instructions_panel').width()/2);
+
+    	// assign values to the overlay and dialog box
+
+    	// $('#instructions_panel').css({height:maskHeight, width:maskWidth}).show();
+    	$('#instructions_panel').css({left:dialogLeft}).show();
+      $('#instructions_panel').show();
+
+
+    },
     getGridSize: function() {
       var width = Math.floor($(window).width()/View.nodeSize) +1,
           height = Math.floor($(window).height()/View.nodeSize) + 1;

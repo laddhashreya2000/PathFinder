@@ -18,8 +18,9 @@ var Panel = {
                 top: 20
             });
             $('#NodeSize').css({
-                top: $('#NoOfDest').offset().top + $('NoOfDest').outerHeight() - 10
+                top: $('#NoOfDest').offset().top + $('#NoOfDest').outerHeight() + 20
             });
+            document.getElementById("footer").innerHTML = "See <a href='#' onclick='Controller.showinstructions()'>instructions</a>. Project hosted on <a href='https://github.com/MuktaWagle/microsoftEngage2020/tree/gh-pages'>Github</a>.";
         });
         $('#play_panel').css({
             top: $algo.offset().top + $algo.outerHeight() + 20
