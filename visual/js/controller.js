@@ -112,48 +112,36 @@ var Controller = StateMachine.create({
 
 $.extend(Controller, {
     operationsPerSecond: 300,
-    // getNodeSize: function() {
-    //   this.
-    // },
-    // init: function() {
-    //   var zoom = $('input[name=nodesize]').val();
-    //   View.getNodeSize(zoom);
-    //   Controller.onleavenone();
-    //   Controller.setDefaultStartEndPos();
-    // },
+    getNodeSize: function() {
+        var zoom = $('input[name=nodesize]').val();
+        View.setNodeSize(zoom);
+        // $.getScript('main.js');
+        // document.location.reload(true);
+        Controller.setDefaultStartEndPos();
+        Controller.onleavenone();
+    },
     showinstructions: function() {
-      // alert("#instructions_panel");
-      // $(window).resize(function () {
-
-      //only do it if the dialog box is not hidden
-      // if (!$('#instructions_panel').is(':hidden')) popup();
-      // });
-
-
     	// get the screen height and width
-    	var maskHeight = $(document).height();
+    	// var maskHeight = $(document).height();
     	var maskWidth = $(window).width();
 
     	// calculate the values for center alignment
-    	var dialogTop =  (maskHeight/3) - ($('#instructions_panel').height());
+    	// var dialogTop =  (maskHeight/3) - ($('#instructions_panel').height());
     	var dialogLeft = (maskWidth/2) - ($('#instructions_panel').width()/2);
 
     	// assign values to the overlay and dialog box
-
     	// $('#instructions_panel').css({height:maskHeight, width:maskWidth}).show();
     	$('#instructions_panel').css({left:dialogLeft}).show();
       $('#instructions_panel').show();
-
-
     },
     getGridSize: function() {
       var width = Math.floor($(window).width()/View.nodeSize) +1,
           height = Math.floor($(window).height()/View.nodeSize) + 1;
       console.log(width);
       console.log(height);
+      console.log($(document).width());
       this.gridSize = [width,height];
     },
-
     getDest: function(){
       var destattr =$('input[name=dest]:checked').val();
       return destattr;
@@ -288,11 +276,6 @@ $.extend(Controller, {
         // Therefore, we have to defer the `abort` routine to make sure
         // that all the animations are done by the time we clear the colors.
         // The same reason applies for the `onreset` event handler.
-        // View.showStats({
-        //     pathLength: null,
-        //     timeSpent:  null,
-        //     operationCount: null,
-        // });
         View.dynamicStats('Restarting');
         setTimeout(function() {
             Controller.clearOperations();
@@ -311,11 +294,6 @@ $.extend(Controller, {
         // => searching
     },
     oncancel: function(event, from, to) {
-        // View.showStats({
-        //     pathLength: '0',
-        //     timeSpent:  '0',
-        //     operationCount: '0',
-        // });
         this.clearOperations();
         this.clearFootprints();
         View.dynamicStats('Cancelled. Start searching again');
@@ -705,18 +683,18 @@ $.extend(Controller, {
             this.setEndPos(centerX, centerY+5, 2);
 
 			if(this.endNodes[4]){
-               this.setEndPos(64*nodeSize, 36*nodeSize, 4);
+         this.setEndPos(64*nodeSize, 36*nodeSize, 4);
 			   this.endNodes.splice(4);
-            }
+      }
 
-            if(this.endNodes[3]){
-               this.setEndPos(64*nodeSize, 36*nodeSize, 3);
+      if(this.endNodes[3]){
+         this.setEndPos(64*nodeSize, 36*nodeSize, 3);
 			   this.endNodes.splice(3);
-            }
-        }
-        else if(Controller.getDest() === "Three"){
-            this.setEndPos(centerX, centerY+5, 2);
-            this.setEndPos(centerX, centerY-5, 3);
+      }
+    }
+    else if(Controller.getDest() === "Three"){
+        this.setEndPos(centerX, centerY+5, 2);
+        this.setEndPos(centerX, centerY-5, 3);
 
 			if(this.endNodes[4]){
                this.setEndPos(64*nodeSize, 36*nodeSize, 4);

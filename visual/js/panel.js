@@ -12,6 +12,7 @@ var Panel = {
         $('.option_label').click(function() {
             $(this).prev().click();
         });
+        $("#WelcomeMsg").delay(3200).fadeOut(300);
         $('#hide_instructions').click(function() {
             $('#instructions_panel').slideUp();
             $('#NoOfDest').css({

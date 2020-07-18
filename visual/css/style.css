@@ -45,7 +45,7 @@ h1, h2, h3, h4, h5, h6 {
 #instructions_panel {
     top: 20px;
     left: 20px;
-    width: 550px;
+    width: 450px;
 }
 
 #hide_instructions {
@@ -59,6 +59,21 @@ h1, h2, h3, h4, h5, h6 {
 #hide_instruction:hover {
     color: #fff;
     text-decoration: underline;
+}
+
+#WelcomeMsg {
+  visibility: visible;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
+  text-align: center;
+  border-radius: 5px;
+  padding: 16px;
+  position: fixed;
+  z-index: 1;
+  left: 40%;
+  top: 20px;
+  width: 300px;
 }
 
 #NoOfDest {

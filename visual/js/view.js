@@ -4,9 +4,9 @@
  */
 var View = {
     nodeSize: 30,
-    // getNodeSize: function(zoom){
-    //   this.nodeSize = zoom*30 /100;
-    // }, // width and height of a single node, in pixel
+    setNodeSize: function(zoom){
+      this.nodeSize = zoom*30 /100;
+    }, // width and height of a single node, in pixel
     nodeStyle: {
         normal: {
             fill: 'white',
