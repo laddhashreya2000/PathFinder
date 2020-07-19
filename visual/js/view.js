@@ -128,8 +128,11 @@ var View = {
                 this.nodeSize
             ).attr(this.nodeStyle.normal)
              .animate(this.nodeStyle.start, 1000);
+			 this.RoverImg = this.paper.image( './visual/js/mars_rover.png', coord[0], coord[1], this.nodeSize, this.nodeSize );
         } else {
             this.startNode.attr({ x: coord[0], y: coord[1] }).toFront();
+			this.RoverImg.remove();
+			this.RoverImg = this.paper.image( './visual/js/mars_rover.png', coord[0], coord[1], this.nodeSize, this.nodeSize ).toFront(); 
         }
     },
     setEndPos: function(gridX, gridY, n) {
@@ -143,6 +146,9 @@ var View = {
                 this.nodeSize
             ).attr(this.nodeStyle.normal)
              .animate(this.nodeStyle.end, 1000);
+			 
+			 this.img = new Array;
+			 this.img[n] = this.paper.image( './visual/js/race_end.png', coord[0], coord[1], this.nodeSize, this.nodeSize );
         }
 		else if(!this.endNode[n-1]){
             this.endNode[n-1] = this.paper.rect(
@@ -152,8 +158,11 @@ var View = {
                 this.nodeSize
             ).attr(this.nodeStyle.normal)
              .animate(this.nodeStyle.end, 1000);
+			 this.img[n] =  this.paper.image( './visual/js/race_end.png', coord[0], coord[1], this.nodeSize, this.nodeSize ).toFront(); 
         } else {
             this.endNode[n-1].attr({ x: coord[0], y: coord[1] }).toFront();
+			this.img[n].remove();
+			this.img[n] =  this.paper.image( './visual/js/race_end.png', coord[0], coord[1], this.nodeSize, this.nodeSize ).toFront(); 
         }
     },
 
