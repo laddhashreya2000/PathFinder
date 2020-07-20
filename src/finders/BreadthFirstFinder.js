@@ -43,6 +43,14 @@ BreadthFirstFinder.prototype.findPath = function(startX, startY, endX, endY, gri
         endnode   = grid.getNodeAt(endX, endY),
         neighbours, neighbour, i, node,
         bi = this.biDirectional;
+    
+    var by_start = 1, by_end = 2,
+        endList=[];
+
+    startnode.by = by_start;
+    endList.push(endnode);
+    endnode.opened = true;
+    endnode.by = by_end;
 
     openList.push(startnode);
     startnode.opened = true;
@@ -57,7 +65,7 @@ BreadthFirstFinder.prototype.findPath = function(startX, startY, endX, endY, gri
 
         neighbours = grid.getNeighbors(node, this.diagonalMovement);
 
-        for(i=0; i<neighbours.length; i++){
+        for(i=0; i<neighbours.length; ++i){
             neighbour = neighbours[i];
 
             if(!neighbour.opened){
@@ -72,13 +80,7 @@ BreadthFirstFinder.prototype.findPath = function(startX, startY, endX, endY, gri
    }
 
   else{
-    var by_start = 1, by_end = 2,
-        endList=[];
-
-    startnode.by = by_start;
-    endList.push(endnode);
-    endnode.opened = true;
-    endnode.by = by_end;
+    
 
     while(openList.length && endList.length){
         node = openList.shift();
@@ -86,19 +88,24 @@ BreadthFirstFinder.prototype.findPath = function(startX, startY, endX, endY, gri
 
         neighbours = grid.getNeighbors(node, this.diagonalMovement);
 
-        for(i=0; i<neighbours.length; i++){
+        for(i=0; i<neighbours.length; ++i){
             neighbour = neighbours[i];
-
-            if(!neighbour.opened){
-                openList.push(neighbour);
-                neighbour.parent = node;
-                neighbour.opened = true;
-                neighbour.by = by_start;
+            
+            if (neighbour.closed) {
+                continue;
             }
-
-            else if(neighbour.opened == by_end){
-                return Util.biBacktrace(node, neighbour);
+            if (neighbour.opened) {
+                // if this node has been inspected by the reversed search,
+                // then a path is found.
+                if (neighbour.by === by_end) {
+                    return Util.biBacktrace(node, neighbour);
+                }
+                continue;
             }
+            openList.push(neighbour);
+            neighbour.parent = node;
+            neighbour.opened = true;
+            neighbour.by = by_start;
         }
 
         node = endList.shift();
@@ -106,19 +113,22 @@ BreadthFirstFinder.prototype.findPath = function(startX, startY, endX, endY, gri
 
         neighbours = grid.getNeighbors(node, this.diagonalMovement);
 
-        for(i=0; i<neighbours.length; i++){
+        for(i=0; i<neighbours.length; ++i){
             neighbour = neighbours[i];
 
-            if(!neighbour.opened){
-                endList.push(neighbour);
-                neighbour.parent = node;
-                neighbour.opened = true;
-                neighbour.by = by_end;
+            if (neighbour.closed) {
+                continue;
             }
-
-            else if(neighbour.opened == by_start){
-                return Util.biBacktrace(neighbour, node);
+            if (neighbour.opened) {
+                if (neighbour.by === by_start) {
+                    return Util.biBacktrace(neighbour, node);
+                }
+                continue;
             }
+            endList.push(neighbour);
+            neighbour.parent = node;
+            neighbour.opened = true;
+            neighbour.by = by_end;
         }
 
     }
