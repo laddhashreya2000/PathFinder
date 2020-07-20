@@ -29,7 +29,7 @@ var DiagonalMovement = require('../core/DiagonalMovement');
  *     suboptimal paths, in order to speed up the search.
  * @param {boolean} opt.trackRecursion Whether to track recursion for
  *     statistical purposes.
- * @param {number} opt.timeLimit Maximum execution time. Use <= 0 for infinite.
+
  */
 function IDAStarFinder(opt) {
     opt = opt || {};
@@ -39,20 +39,24 @@ function IDAStarFinder(opt) {
     this.heuristic = opt.heuristic || Heuristic.manhattan;
     this.weight = opt.weight || 1;
     this.trackRecursion = opt.trackRecursion || false;
-    this.timeLimit = opt.timeLimit || Infinity; // Default: no time limit.
+    
 
     if (!this.diagonalMovement) {
         if (!this.allowDiagonal) {
             this.diagonalMovement = DiagonalMovement.Never;
-            this.heuristic = opt.heuristic || Heuristic.manhattan;
         } else {
             if (this.dontCrossCorners) {
                 this.diagonalMovement = DiagonalMovement.OnlyWhenNoObstacles;
             } else {
                 this.diagonalMovement = DiagonalMovement.IfAtMostOneObstacle;
             }
-            this.heuristic = opt.heuristic || Heuristic.octile;
         }
+    }
+
+    if (this.diagonalMovement === DiagonalMovement.Never) {
+        this.heuristic = opt.heuristic || Heuristic.manhattan;
+    } else {
+        this.heuristic = opt.heuristic || Heuristic.octile;
     }
 
 }
@@ -72,11 +76,11 @@ IDAStarFinder.prototype.findPath = function(startX, startY, endX, endY, grid){
     var startTime = new Date().getTime();
 
     var h = function(a,b){
-        return this.heuristic(Math.abs(a.x-b.x), Math.abs(a.y-b.y));
+        return this.heuristic(Math.abs(b.x-a.x), Math.abs(b.y-a.y));
     }.bind(this);
 
     var cost = function(a,b){
-        return (a.x==b.x || a.y==b.y)? 1 : Math.SQRT2 ;
+        return (a.x===b.x || a.y===b.y)? 1 : Math.SQRT2 ;
     };
 
     /**
@@ -95,9 +99,6 @@ IDAStarFinder.prototype.findPath = function(startX, startY, endX, endY, grid){
     var search = function(node, g, cutoff, route, depth){
          visitedNode++;
 
-         if(this.timeLimit > 0 &&
-            new Date().getTime() - startTime > this.timeLimit*1000) return Infinity;
-
          var f = g + h(node, end)*this.weight;
 
          if(f> cutoff) return f;
@@ -111,15 +112,15 @@ IDAStarFinder.prototype.findPath = function(startX, startY, endX, endY, grid){
 
          neighbors = grid.getNeighbors(node, this.diagonalMovement);
 
-         for(i=0; i<neighbors.length; i++){
-              min=Infinity;
-              neighbor = neighbors[i];
-
+//       for(i=0;i<neighbors.length;++i)
+         for(i=0, min=Infinity; neighbor = neighbors[i];
+            ++i){
+              
               if(this.trackRecursion){
 
-                  neighbor.retainCount = neighbor.retainCount +1 || 1;
+                  neighbor.retainCount = (neighbor.retainCount + 1) || 1;
 
-                  if(neighbor.tested !== true) neighbor.tested = true;
+                  if(neighbor.tested !== true){ neighbor.tested = true;}
               }
 
               t = search(neighbor, g+cost(node,neighbor), cutoff, route, depth+1);
@@ -129,10 +130,9 @@ IDAStarFinder.prototype.findPath = function(startX, startY, endX, endY, grid){
                   return t;
               }
 
-              if(this.trackRecursion && (--neighbor.retainCount) === 0)
-                  neighbor.tested = false;
+              if(this.trackRecursion && (--neighbor.retainCount) === 0)  { neighbor.tested = false;}
 
-              if(t< min) min = t;
+              if(t< min) { min = t;}
 
          }
 
@@ -149,8 +149,9 @@ IDAStarFinder.prototype.findPath = function(startX, startY, endX, endY, grid){
 
        t = search(start, 0, cutoff, route, 0);
 
+       if(t === Infinity) return [];
+
        if(t instanceof Node) return route;
-       if(t == Infinity) return [];
 
        cutoff = t;
     }

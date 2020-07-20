@@ -163,13 +163,8 @@ var Panel = {
             weight = parseInt($('#ida_section input[name=astar_weight]').val()) || 1;
             weight = weight >= 1 ? weight : 1; /* if negative or 0, use 1 */
 
-            timeLimit = parseInt($('#ida_section input[name=time_limit]').val());
-
-            // Any non-negative integer, indicates "forever".
-            timeLimit = (timeLimit <= 0 || isNaN(timeLimit)) ? -1 : timeLimit;
 
             finder = new PF.IDAStarFinder({
-              timeLimit: timeLimit,
               trackRecursion: trackRecursion,
               allowDiagonal: allowDiagonal,
               dontCrossCorners: dontCrossCorners,
