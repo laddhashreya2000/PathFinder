@@ -128,6 +128,7 @@ var Controller = StateMachine.create({
 $.extend(Controller, {
     operationsPerSecond: 300,
 	RoverImg: ['./visual/js/mars_rover.png', './visual/js/mars_rover2.png', './visual/js/mars_rover3.png'],
+	StatsState: ["Searching", "Racing"],
     getNodeSize: function() {
         var zoom = $('input[name=nodesize]').val();
         View.setNodeSize(zoom);
@@ -212,7 +213,7 @@ $.extend(Controller, {
         // => erasingWall
     },
     onsearch: function(event, from, to) {
-        View.dynamicStats('Searching');
+        View.dynamicStats(this.StatsState[this.stype]);
         var timeStart, timeEnd;
 
         timeStart = window.performance ? performance.now() : Date.now();
@@ -350,7 +351,7 @@ $.extend(Controller, {
     },
     onpause: function(event, from, to) {
         // => paused
-        View.dynamicStats('Paused. Start searching again');
+        View.dynamicStats('Paused. Start '+ this.StatsState[this.stype] +' again');
     },
     onresume: function(event, from, to) {
         View.dynamicStats('Resuming');
@@ -360,7 +361,7 @@ $.extend(Controller, {
     oncancel: function(event, from, to) {
         this.clearOperations();
         this.clearFootprints();
-        View.dynamicStats('Cancelled. Start searching again');
+        View.dynamicStats('Cancelled. Start ' + this.StatsState[this.stype] + ' again');
         // => ready
     },
     onfinish: function(event, from, to) {
@@ -372,7 +373,7 @@ $.extend(Controller, {
         });
         View.drawPath(this.path, 0);
 
-        if(!this.path.length) {window.alert("Path not found"); console.log("Not found"); }
+        if(!this.path.length) {window.alert("There is no path possible"); }
 	  }
       else{	  
 		
@@ -441,7 +442,7 @@ $.extend(Controller, {
     onclear: function(event, from, to) {
         this.clearOperations();
         this.clearFootprints();
-        View.dynamicStats('Path Cleared. Start searching again');
+        View.dynamicStats('Path Cleared. Start ' + this.StatsState[this.stype] + ' again');
         // => ready
     },
     onmodify: function(event, from, to) {
@@ -474,11 +475,13 @@ $.extend(Controller, {
             Controller.clearAll();
             Controller.buildNewGrid();
             if(a === "1one") { 
-			    Controller.setDefaultStartEndPos2(); 			    
+			    Controller.setDefaultStartEndPos2(); 
+                View.dynamicStats('Start racing');			    
 				x.innerHTML = "Welcome to the race between rovers. <br> Enjoy the race.";               				
 			}
 		    else { 
 			    Controller.setDefaultStartEndPos(); 
+				View.dynamicStats('Start searching');
 				x.innerHTML = "Welcome!! <br>Find the shortest path from rover to destination.";    
 			}
         }, View.nodeColorizeEffect.duration * 1.2);
@@ -503,6 +506,7 @@ $.extend(Controller, {
         setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3500);  		
         // => ready
     },
+	
 	StypeState: ["Search", "Race"],
 	SetDestType: [true, false],
 
@@ -514,12 +518,12 @@ $.extend(Controller, {
         console.log('=> ready');
         this.setButtonStates({
             id: 1,
-            text: 'Start Search',
+            text: 'Start ' + this.StypeState[this.stype],
             enabled: true,
             callback: $.proxy(this.start, this),
         }, {
             id: 2,
-            text: 'Pause Search',
+            text: 'Pause ' + this.StypeState[this.stype],
             enabled: false,
         }, {
             id: 3,

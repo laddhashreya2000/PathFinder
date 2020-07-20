@@ -68,7 +68,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 #WelcomeMsg {
-  visibility: visible;
+  visibility: hidden;
   background-color: rgba(0, 0, 0, 0.6);
   color: #fff;
   box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
@@ -78,7 +78,8 @@ h1, h2, h3, h4, h5, h6 {
   position: fixed;
   z-index: 1;
   left: 40%;
-  top: 20px;
+  top: 30px;
+  font-size: 17px; 
   width: 300px;
 }
 
