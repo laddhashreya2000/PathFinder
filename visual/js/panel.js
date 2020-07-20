@@ -12,26 +12,32 @@ var Panel = {
         $('.option_label').click(function() {
             $(this).prev().click();
         });
-        $("#WelcomeMsg").delay(3200).fadeOut(300);
         $('#hide_instructions').click(function() {
             $('#instructions_panel').slideUp();
-            $('#NoOfDest').css({
+            $('#RoverRace').css({
                 top: 20
             });
-            $('#NodeSize').css({
-                top: $('#NoOfDest').offset().top + $('#NoOfDest').outerHeight() + 20
+            $('#NoOfDest').css({
+                top: $('#RoverRace').offset().top + $('#RoverRace').outerHeight() + 10
+            });
+			$('#NodeSize').css({
+                top: $('#RoverRace').offset().top + $('#RoverRace').outerHeight() + $('#NoOfDest').offset().top + $('#NoOfDest').outerHeight() - 150
             });
             document.getElementById("footer").innerHTML = "See <a href='#' onclick='Controller.showinstructions()'>instructions</a>. Project hosted on <a href='https://github.com/MuktaWagle/microsoftEngage2020/tree/gh-pages'>Github</a>.";
         });
         $('#play_panel').css({
             top: $algo.offset().top + $algo.outerHeight() + 20
         });
-        $('#NoOfDest').css({
+		$('#RoverRace').css({
             top: $('#instructions_panel').offset().top + $('#instructions_panel').outerHeight() + 20
+        });
+        $('#NoOfDest').css({
+            top: $('#instructions_panel').offset().top + $('#instructions_panel').outerHeight() +$('#RoverRace').offset().top + $('RoverRace').outerHeight() - 10
         });
         $('#button2').attr('disabled', 'disabled');
         $('#NodeSize').css({
-            top: $('#instructions_panel').offset().top + $('#instructions_panel').outerHeight() + $('#NoOfDest').offset().top + $('NoOfDest').outerHeight() - 10
+            top: $('#instructions_panel').offset().top + $('#instructions_panel').outerHeight() + $('#NoOfDest').offset().top + $('NoOfDest').outerHeight() 
+			 +$('#RoverRace').offset().top + $('RoverRace').outerHeight() - 200
         });
     },
     /**

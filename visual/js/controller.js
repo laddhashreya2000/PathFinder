@@ -17,6 +17,11 @@ var Controller = StateMachine.create({
             from: '*',
             to:   'ready'
         },
+		{
+            name: 'raceset',
+            from: '*',
+            to:   'ready'
+        },
         {
             name: 'search',
             from: 'starting',
@@ -77,6 +82,16 @@ var Controller = StateMachine.create({
             from: ['ready', 'finished'],
             to:   'draggingEnd'
         },
+		{
+            name: 'dragStart2',
+            from: ['ready', 'finished'],
+            to:   'draggingStart2'
+        },
+		{
+            name: 'dragStart3',
+            from: ['ready', 'finished'],
+            to:   'draggingStart3'
+        },
         {
             name: 'dragEnd2',
             from: ['ready', 'finished'],
@@ -104,7 +119,7 @@ var Controller = StateMachine.create({
         },
         {
             name: 'rest',
-            from: ['draggingStart', 'draggingEnd', 'draggingEnd2', 'draggingEnd3', 'draggingEnd4', 'drawingWall', 'erasingWall'],
+            from: ['draggingStart', 'draggingStart2', 'draggingStart3', 'draggingEnd', 'draggingEnd2', 'draggingEnd3', 'draggingEnd4', 'drawingWall', 'erasingWall'],
             to  : 'ready'
         },
     ],
@@ -112,6 +127,7 @@ var Controller = StateMachine.create({
 
 $.extend(Controller, {
     operationsPerSecond: 300,
+	RoverImg: ['./visual/js/mars_rover.png', './visual/js/mars_rover2.png', './visual/js/mars_rover3.png'],
     getNodeSize: function() {
         var zoom = $('input[name=nodesize]').val();
         View.setNodeSize(zoom);
@@ -146,6 +162,11 @@ $.extend(Controller, {
       var destattr =$('input[name=dest]:checked').val();
       return destattr;
     },
+	getStype: function(){ 
+        var stype =$('input[name=stype]:checked').val();
+    	return stype;
+    },
+	
     /**
      * Asynchronous transition from `none` state to `ready` state.
      */
@@ -161,8 +182,14 @@ $.extend(Controller, {
             numRows: numRows
         });
 
-		    this.endNodes = new Array;
-
+	    this.endNodes = new Array;
+        this.startNodes = new Array;
+		this.stype = 0;
+		this.setType = "0zero";
+ 
+        var x = document.getElementById("WelcomeMsg");
+        setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3500);
+		
         View.generateGrid(function() {
             Controller.setDefaultStartEndPos();
             Controller.bindEvents();
@@ -190,19 +217,30 @@ $.extend(Controller, {
 
         timeStart = window.performance ? performance.now() : Date.now();
 
-        var gr = this.makeGraph(this.endNodes);
-     	var n = this.endNodes.length;
-        var pathArray = new Array;
-        var order = {p: new Array};
-        var len = this.getPath(1,gr,0,n, order);
-		var f = order.p.reverse(),  l = f.length;
+      if(this.setType === "0zero"){
+		var gr = this.makeGraph(this.endNodes),
+            n = this.endNodes.length,
+            pathArray = new Array,
+            order = {p: new Array},
+            len = this.getPath(1,gr,0,n, order),
+		    f = order.p.reverse(),  l = f.length;
 
 		for(var j=0; j<l-1; j++){
 			 if(f[j+1] > f[j] ) gr[f[j]][f[j+1]][1].reverse();
-		     pathArray = pathArray.concat(gr[f[j]][f[j+1]][1]);
-		}
+		     pathArray = pathArray.concat(gr[f[j]][f[j+1]][1]);	
+		}	
 
         this.path = pathArray;
+      }
+	  else{
+		View.setRoverPos2(Controller.startNodes[0][0], Controller.startNodes[0][1], 0);
+		View.setRoverPos2(Controller.startNodes[1][0], Controller.startNodes[1][1], 1);
+		View.setRoverPos2(Controller.startNodes[2][0], Controller.startNodes[2][1], 2); 
+		console.log(this.startNodes);
+		this.winner = new Array;
+        var graph = this.makeGraph2(this.startNodes);
+        this.graph = graph;
+	  }
 
         this.operationCount = this.operations.length;
         timeEnd = window.performance ? performance.now() : Date.now();
@@ -241,6 +279,32 @@ $.extend(Controller, {
         return graph;
 
     },
+	makeGraph2: function(endNodes){
+        var n = endNodes.length;
+        var graph = new Array(n-1); 
+		var win_len = 100000;
+
+        for(var i = 0; i < graph.length; i++){
+          
+                var Grid,finder = Panel.getFinder();
+                Grid = this.grid.clone(i);
+
+                var dist = finder.findPath(
+                  endNodes[i][0], endNodes[i][1], endNodes[n-1][0], endNodes[n-1][1], Grid, i
+                );
+				
+                var len = PF.Util.pathLength(dist);
+		          
+		if(len< win_len && len > 0) {win_len = len; this.winner = [i]; }
+        else if(len === win_len) this.winner.push(i);		
+		
+                graph[i] = new Array(2);
+                graph[i][0]=len;
+                graph[i][1]= dist;
+        }
+       
+        return graph;
+	},
     getPath: function(bit_mask,gr,pos,n, order){
         if (bit_mask === ((1<<n)-1)) {
             order.p.push(pos);
@@ -300,12 +364,78 @@ $.extend(Controller, {
         // => ready
     },
     onfinish: function(event, from, to) {
+        if(this.setType === "0zero"){	
         View.showStats({
             pathLength: PF.Util.pathLength(this.path),
             timeSpent:  this.timeSpent,
             operationCount: this.operationCount,
         });
-        View.drawPath(this.path);
+        View.drawPath(this.path, 0);
+
+        if(!this.path.length) {window.alert("Path not found"); console.log("Not found"); }
+	  }
+      else{	  
+		
+		var path = this.graph;
+		
+        View.showStats2({
+            pathLength1: path[0][0],
+			pathLength2: path[1][0],
+			pathLength3: path[2][0],
+            timeSpent:  this.timeSpent,
+            operationCount: this.operationCount,
+        });  
+		
+		var imgs = [ "<img src= './visual/js/mars_rover3.png' width=30% >" , 
+		             "<img src= './visual/js/mars_rover.png' width=30% />" ,
+		             "<img src= './visual/js/mars_rover2.png' width=34% />"
+		];
+		
+		var x = document.getElementById("WinMsg");	
+		
+		console.log(this.winner);
+		
+		if(this.winner[0] === undefined){
+			x.innerHTML = "No rover can reach the destination.";
+		}	
+		else{	
+		    var pathLen = path[this.winner[0]][0];
+		    for(var i=0; i<3; i++){
+				if(this.winner.indexOf(i) === -1){
+					
+					var len = 0, j=0;
+					while(len <= pathLen){
+					    a = path[i][1][j];
+                        b = path[i][1][j+1];
+                        dx = a[0] - b[0];
+                        dy = a[1] - b[1];
+                        len += Math.sqrt(dx * dx + dy * dy);
+                        j++;						
+					}
+					path[i][1].splice(j);
+					View.setRoverPos2(path[i][1][j-1][0], path[i][1][j-1][1], i);
+				}
+				
+				View.drawPath(path[i][1], i);
+		
+	        }	
+		     
+			View.setRoverWinPos(this.winner, this.startNodes[3][0], this.startNodes[3][1]);
+			 
+		    var winRover = (this.winner[0] +1);
+			var winImg = imgs[Controller.winner[0]];
+		     
+		    for(var i=1; i<this.winner.length; i++){
+			    winRover = winRover + " and rover " + (this.winner[i]+1);   
+		        winImg = winImg + " " +imgs[Controller.winner[i]];
+			}	
+		
+			x.innerHTML = "Congrats, rover " + winRover + " won" + "<br>" + winImg ;
+		}	
+			
+        setTimeout(function(){ x.className = x.className.replace("", "show"); }, 1000);
+        setTimeout(function(){ x.className = x.className.replace("show", ""); }, 4000);
+	  }	
         // => finished
     },
     onclear: function(event, from, to) {
@@ -335,6 +465,46 @@ $.extend(Controller, {
         }, View.nodeColorizeEffect.duration * 1.2);
         // => ready
     },
+	onraceset: function(event, from, to) {
+		var a = this.setType = this.getStype();
+		this.stype = a[0];
+		var x = document.getElementById("WelcomeMsg");
+        setTimeout(function() {
+            Controller.clearOperations();
+            Controller.clearAll();
+            Controller.buildNewGrid();
+            if(a === "1one") { 
+			    Controller.setDefaultStartEndPos2(); 			    
+				x.innerHTML = "Welcome to the race between rovers. <br> Enjoy the race.";               				
+			}
+		    else { 
+			    Controller.setDefaultStartEndPos(); 
+				x.innerHTML = "Welcome!! <br>Find the shortest path from rover to destination.";    
+			}
+        }, View.nodeColorizeEffect.duration * 1.2);
+		
+		this.setButtonStates({
+            id: 1,
+            text: 'Start ' + this.StypeState[this.stype] ,
+            enabled: true,
+            callback: $.proxy(this.start, this),
+        }, {
+            id: 2,
+            text: 'Pause ' + this.StypeState[this.stype] ,
+            enabled: false,
+        }, {
+            id: 4,
+            text: 'Set dest',
+            enabled: this.SetDestType[this.stype],
+            callback: $.proxy(this.set, this),
+        });
+				
+		x.className = x.className.replace("", "show"); 
+        setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3500);  		
+        // => ready
+    },
+	StypeState: ["Search", "Race"],
+	SetDestType: [true, false],
 
     /**
      * The following functions are called on entering states.
@@ -361,6 +531,11 @@ $.extend(Controller, {
             text: 'Set dest',
             enabled: true,
             callback: $.proxy(this.set, this),
+		}, {
+            id: 6,
+            text: 'Set',
+            enabled: true,
+            callback: $.proxy(this.raceset, this),		
         });
         // => [starting, draggingStart, draggingEnd, drawingStart, drawingEnd]
     },
@@ -376,6 +551,11 @@ $.extend(Controller, {
             text: 'Set dest',
             enabled: false,
             callback: $.proxy(this.set, this),
+		}, {
+            id: 6,
+            text: 'Set',
+            enabled: false,
+            callback: $.proxy(this.raceset, this),		
         });
         this.search();
         // => searching
@@ -384,12 +564,12 @@ $.extend(Controller, {
         console.log('=> searching');
         this.setButtonStates({
             id: 1,
-            text: 'Restart Search',
+            text: 'Restart ' + this.StypeState[this.stype],
             enabled: true,
             callback: $.proxy(this.restart, this),
         }, {
             id: 2,
-            text: 'Pause Search',
+            text: 'Pause ' + this.StypeState[this.stype],
             enabled: true,
             callback: $.proxy(this.pause, this),
         }, {
@@ -397,6 +577,11 @@ $.extend(Controller, {
             text: 'Set dest',
             enabled: false,
             callback: $.proxy(this.set, this),
+		}, {
+            id: 6,
+            text: 'Set',
+            enabled: false,
+            callback: $.proxy(this.raceset, this),	
         });
         // => [paused, finished]
     },
@@ -404,19 +589,24 @@ $.extend(Controller, {
         console.log('=> paused');
         this.setButtonStates({
             id: 1,
-            text: 'Resume Search',
+            text: 'Resume ' + this.StypeState[this.stype],
             enabled: true,
             callback: $.proxy(this.resume, this),
         }, {
             id: 2,
-            text: 'Cancel Search',
+            text: 'Cancel ' + this.StypeState[this.stype],
             enabled: true,
             callback: $.proxy(this.cancel, this),
         }, {
             id: 4,
             text: 'Set dest',
-            enabled: true,
+            enabled: this.SetDestType[this.stype],
             callback: $.proxy(this.set, this),
+		}, {
+            id: 6,
+            text: 'Set',
+            enabled: true,
+            callback: $.proxy(this.raceset, this),	
         });
         // => [searching, ready]
     },
@@ -424,7 +614,7 @@ $.extend(Controller, {
         console.log('=> finished');
         this.setButtonStates({
             id: 1,
-            text: 'Restart Search',
+            text: 'Restart ' + this.StypeState[this.stype],
             enabled: true,
             callback: $.proxy(this.restart, this),
         }, {
@@ -435,15 +625,20 @@ $.extend(Controller, {
         }, {
             id: 4,
             text: 'Set dest',
-            enabled: true,
+            enabled: this.SetDestType[this.stype],
             callback: $.proxy(this.set, this),
+		}, {
+            id: 6,
+            text: 'Set',
+            enabled: true,
+            callback: $.proxy(this.raceset, this),	
         });
     },
     onmodified: function() {
         console.log('=> modified');
         this.setButtonStates({
             id: 1,
-            text: 'Start Search',
+            text: 'Start ' + this.SetDestType[this.stype],
             enabled: true,
             callback: $.proxy(this.start, this),
         }, {
@@ -456,6 +651,11 @@ $.extend(Controller, {
             text: 'Set dest',
             enabled: true,
             callback: $.proxy(this.set, this),
+		}, {
+            id: 6,
+            text: 'Set',
+            enabled: true,
+            callback: $.proxy(this.raceset, this),	
         });
     },
 
@@ -558,6 +758,7 @@ $.extend(Controller, {
             gridY = coord[1],
             grid  = this.grid;
 
+      if(this.setType !== "1one"){
         if (this.can('dragStart') && this.isStartPos(gridX, gridY)) {
             this.dragStart();
             return;
@@ -578,6 +779,25 @@ $.extend(Controller, {
             this.dragEnd4();
             return;
         }
+	  }
+      else{
+		if (this.can('dragStart') && this.isStartPos2(gridX, gridY, 0)) {
+            this.dragStart();
+            return;
+        }
+        if (this.can('dragStart2') && this.isStartPos2(gridX, gridY, 1)) {
+            this.dragStart2();
+            return;
+        }
+        if (this.can('dragStart3') && this.isStartPos2(gridX, gridY, 2)) {
+            this.dragStart3();
+            return;
+        }		
+		if (this.can('dragEnd') && this.isEndPos2(gridX, gridY, 3)) {
+            this.dragEnd();
+            return;
+        } 
+	  }	  	  
         if (this.can('drawWall') && grid.isWalkableAt(gridX, gridY)) {
             this.drawWall(gridX, gridY);
             return;
@@ -592,6 +812,7 @@ $.extend(Controller, {
             gridX = coord[0],
             gridY = coord[1];
 
+      if(this.setType !== "1one"){
         if (this.isStartOrEndPos(gridX, gridY)) {
             return;
         }
@@ -629,6 +850,41 @@ $.extend(Controller, {
             this.setWalkableAt(gridX, gridY, true);
             break;
         }
+	  }
+      else{
+		if (this.isStartOrEndPos2(gridX, gridY)) {
+            return;
+        }
+
+        switch (this.current) {
+        case 'draggingStart':
+            if (grid.isWalkableAt(gridX, gridY)) {
+                this.setStartPos2(gridX, gridY,0);
+            }
+            break;
+		case 'draggingStart2':
+            if (grid.isWalkableAt(gridX, gridY)) {
+                this.setStartPos2(gridX, gridY,1);
+            }
+            break;
+		case 'draggingStart3':
+            if (grid.isWalkableAt(gridX, gridY)) {
+                this.setStartPos2(gridX, gridY,2);
+            }
+            break;	
+        case 'draggingEnd':
+            if (grid.isWalkableAt(gridX, gridY)) {
+                this.setEndPos2(gridX, gridY,3);
+            }
+            break; 
+		case 'drawingWall':
+            this.setWalkableAt(gridX, gridY, false);
+            break;
+        case 'erasingWall':
+            this.setWalkableAt(gridX, gridY, true);
+            break;	
+		}	
+	  }	  	  
     },
     mouseup: function(event) {
         if (Controller.can('rest')) {
@@ -675,6 +931,16 @@ $.extend(Controller, {
 
         centerX = Math.ceil(availWidth / 2 / nodeSize);
         centerY = Math.floor(height / 2 / nodeSize);
+		
+		if(this.startNodes[0]){
+		   this.setEndPos2(64*nodeSize, 36*nodeSize, 3);
+	       this.startNodes.splice(3);
+		
+		   for(var i=2; i>=0; i--){
+		      this.setStartPos2(64*nodeSize, 36*nodeSize, i);
+		      this.startNodes.splice(i);
+           }
+		}
 
         this.setStartPos(centerX - 5, centerY);
         this.setEndPos(centerX + 5, centerY, 1);
@@ -749,4 +1015,56 @@ $.extend(Controller, {
         return this.isStartPos(gridX, gridY) || this.isEndPos(gridX, gridY, 1) || this.isEndPos(gridX, gridY, 2)
 		    || this.isEndPos(gridX, gridY, 3) || this.isEndPos(gridX, gridY, 4);
     },
+	setDefaultStartEndPos2: function() {
+        var width, height,
+            marginRight, availWidth,
+            centerX, centerY,
+            endX, endY,
+            nodeSize = View.nodeSize;
+
+        width  = this.gridSize[0]*30;
+        height = this.gridSize[1]*30;
+
+        marginRight = $('#algorithm_panel').width();
+        availWidth = width - marginRight;
+
+        centerX = Math.ceil(availWidth / 2 / nodeSize);
+        centerY = Math.floor(height / 2 / nodeSize);
+		
+		for(var i=this.endNodes.length - 1; i>0; i--){
+		   this.setEndPos(64*nodeSize, 36*nodeSize, i);
+		   this.endNodes.splice(i);
+        }
+		
+		this.setStartPos(64*nodeSize, 36*nodeSize);
+		this.endNodes.splice(0);
+		
+        this.setStartPos2(centerX-1, centerY, 0);
+	    this.setStartPos2(centerX+4, centerY-5, 1);
+	    this.setStartPos2(centerX+4, centerY+5, 2);
+        this.setEndPos2(centerX+4, centerY, 3);
+   
+    },
+    setStartPos2: function(gridX, gridY, n) {
+        this.startNodes[n] = [gridX, gridY];
+        View.setStartPos2(gridX, gridY, n);
+		View.setRoverPos2(gridX, gridY, n);
+    },
+    setEndPos2: function(gridX, gridY, n) {
+        this.startNodes[n] = [gridX, gridY];
+        View.setEndPos2(gridX, gridY, n);
+    },
+    isStartPos2: function(gridX, gridY, n) {
+		if(this.startNodes[n] === undefined) return false;
+        return gridX === this.startNodes[n][0] && gridY === this.startNodes[n][1];
+    },
+    isEndPos2: function(gridX, gridY, n) {
+        if(this.startNodes[n] === undefined) return false;
+		return (gridX === this.startNodes[n][0] && gridY === this.startNodes[n][1]);
+    },
+    isStartOrEndPos2: function(gridX, gridY) {
+        return this.isStartPos2(gridX, gridY,0) || this.isStartPos2(gridX, gridY,1) || 
+		       this.isStartPos2(gridX, gridY,2) || this.isEndPos2(gridX, gridY,3);
+    },
+
 });
