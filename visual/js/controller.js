@@ -163,9 +163,9 @@ $.extend(Controller, {
       var destattr =$('input[name=dest]:checked').val();
       return destattr;
     },
-	getStype: function(){
-        var stype =$('input[name=stype]:checked').val();
-    	return stype;
+  	getStype: function(){
+          var stype =$('input[name=stype]:checked').val();
+      	return stype;
     },
 
     /**
@@ -184,9 +184,9 @@ $.extend(Controller, {
         });
 
 	    this.endNodes = new Array;
-        this.startNodes = new Array;
-		this.stype = 0;
-		this.setType = "0zero";
+      this.startNodes = new Array;
+		  this.stype = 0;
+		  this.setType = "0zero";
 
         var x = document.getElementById("WelcomeMsg");
         setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3500);
@@ -218,7 +218,7 @@ $.extend(Controller, {
 
         timeStart = window.performance ? performance.now() : Date.now();
 
-      if(this.setType === "0zero"){
+    if(this.setType === "0zero"){
 		var gr = this.makeGraph(this.endNodes),
             n = this.endNodes.length,
             pathArray = new Array,
@@ -533,7 +533,7 @@ $.extend(Controller, {
         }, {
             id: 4,
             text: 'Set dest',
-            enabled: true,
+            enabled: this.SetDestType[this.stype],
             callback: $.proxy(this.set, this),
 		}, {
             id: 6,
@@ -653,7 +653,7 @@ $.extend(Controller, {
         }, {
             id: 4,
             text: 'Set dest',
-            enabled: true,
+            enabled: this.SetDestType[this.stype],
             callback: $.proxy(this.set, this),
 		}, {
             id: 6,
