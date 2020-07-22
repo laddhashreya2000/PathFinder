@@ -137,10 +137,6 @@ $.extend(Controller, {
     getNodeSize: function() {
         var zoom = $('input[name=nodesize]').val();
         View.setNodeSize(zoom);
-        // $.getScript('main.js');
-        // document.location.reload(true);
-        // Controller.setDefaultStartEndPos();
-        // Controller.onleavenone();
     },
     showinstructions: function() {
     	// get the screen height and width
@@ -160,9 +156,6 @@ $.extend(Controller, {
       Controller.getNodeSize();
       var width = Math.floor($(window).width()/View.nodeSize) +1,
           height = Math.floor($(window).height()/View.nodeSize) + 1;
-      console.log(width);
-      console.log(height);
-      console.log($(document).width());
       this.gridSize = [width,height];
     },
     getDest: function(){
@@ -734,9 +727,8 @@ $.extend(Controller, {
     },
     bindEvents: function() {
         $('#draw_area').mousedown($.proxy(this.mousedown, this));
-        $(window)
-            .mousemove($.proxy(this.mousemove, this))
-            .mouseup($.proxy(this.mouseup, this));
+        $(window).mousemove($.proxy(this.mousemove, this));
+        $(window).mouseup($.proxy(this.mouseup, this));
     },
     loop: function() {
         var interval = 1000 / this.operationsPerSecond;
