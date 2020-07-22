@@ -363,6 +363,27 @@ $.extend(Controller, {
         View.dynamicStats('Cancelled. Start ' + this.StatsState[this.stype] + ' again');
         // => ready
     },
+	callback: function(path, i, pathLen, t, n){
+		var path1 = [path[i-1], path[i]],
+		    len1 = PF.Util.pathLength(path1);   // length of the step (either 1 or sqrt(2))
+			t = t+ len1;                        // t = length till this step
+		
+		setTimeout(function() {
+			View.drawPath(path1, n, i-1);   // draws 1 step path of rover
+			View.setRoverPos2(path[i][0], path[i][1], n);    // set the position of rover to the current point
+		}, (len1-1)*500);  
+		
+		if(t<pathLen){          // while no rover has reached the destination
+			path_next = [path[i], path[i+1]];
+			var s = t + PF.Util.pathLength(path_next);
+		  
+		    if(s<=pathLen){     // if travelling the next point to path exceeds the pathLen then don't travel that node
+			    setTimeout(function(){
+				    Controller.callback(path, i+1, pathLen, t, n);
+			    }, len1*500);
+            }			
+		}
+	},	
     onfinish: function(event, from, to) {
       if(this.setType === "0zero"){
         View.showStats({
@@ -370,7 +391,7 @@ $.extend(Controller, {
             timeSpent:  this.timeSpent,
             operationCount: this.operationCount,
         });
-        View.drawPath(this.path, 0);
+        View.drawPath(this.path, 0, 0);
       }
 	  else{
 
@@ -384,41 +405,28 @@ $.extend(Controller, {
             operationCount: this.operationCount,
         });
 
-		var imgs = [ "<img src= './visual/js/mars_rover3.png' width=30% >" ,
-		             "<img src= './visual/js/mars_rover.png' width=30% />" ,
-		             "<img src= './visual/js/mars_rover2.png' width=34% />"
-		];
-
 		var x = document.getElementById("WinMsg");
-
-		console.log(this.winner);
 
 		if(this.winner[0] === undefined){
 			x.innerHTML = "No rover can reach the destination.";
 		}
 		else{
+			var imgs = [ "<img src= './visual/js/mars_rover3.png' width=30% >" ,
+		             "<img src= './visual/js/mars_rover.png' width=30% />" ,
+		             "<img src= './visual/js/mars_rover2.png' width=34% />"
+       		];
+
 		    var pathLen = path[this.winner[0]][0];
-		    for(var i=0; i<3; i++){
-				if(this.winner.indexOf(i) === -1){
-
-					var len = 0, j=0;
-					while(len <= pathLen){
-					    a = path[i][1][j];
-                        b = path[i][1][j+1];
-                        dx = a[0] - b[0];
-                        dy = a[1] - b[1];
-                        len += Math.sqrt(dx * dx + dy * dy);
-                        j++;
-					}
-					path[i][1].splice(j);
-					View.setRoverPos2(path[i][1][j-1][0], path[i][1][j-1][1], i);
-				}
-
-				View.drawPath(path[i][1], i);
-
-	        }
-
-			View.setRoverWinPos(this.winner, this.startNodes[3][0], this.startNodes[3][1]);
+		    
+			setTimeout(function(){
+				Controller.callback(path[0][1], 1, pathLen, 0, 0);
+				Controller.callback(path[1][1], 1, pathLen, 0, 1);
+				Controller.callback(path[2][1], 1, pathLen, 0, 2);
+			}, 500);
+				
+			setTimeout(function(){
+				View.setRoverWinPos(Controller.winner, Controller.startNodes[3][0], Controller.startNodes[3][1]);
+			}, (pathLen+1)*500);
 
 		    var winRover = (this.winner[0] +1);
 			var winImg = imgs[Controller.winner[0]];
@@ -428,11 +436,12 @@ $.extend(Controller, {
 		        winImg = winImg + " " +imgs[Controller.winner[i]];
 			}
 
-			x.innerHTML = "Congrats, rover " + winRover + " won" + "<br>" + winImg ;
+			if(this.winner.length === 1) x.innerHTML = "Congrats, the winner is <br>" + winImg ;
+			else x.innerHTML = "Congrats, the winners are <br>" + winImg ;
 		}
 
-        setTimeout(function(){ x.className = x.className.replace("", "show"); }, 1000);
-        setTimeout(function(){ x.className = x.className.replace("show", ""); }, 4000);
+        setTimeout(function(){ x.className = x.className.replace("", "show"); }, (pathLen+1)*500);
+        setTimeout(function(){ x.className = x.className.replace("show", ""); }, (pathLen+9)*500);
 	  }
         // => finished
     },
