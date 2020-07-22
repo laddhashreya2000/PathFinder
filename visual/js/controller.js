@@ -378,7 +378,7 @@ $.extend(Controller, {
             operationCount: this.operationCount,
         });
         View.drawPath(this.path, 0);
-      }        
+      }
 	  else{
 
 		var path = this.graph;
