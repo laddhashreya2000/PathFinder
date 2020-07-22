@@ -470,6 +470,7 @@ $.extend(Controller, {
           Controller.getGridSize();
           Controller.buildNewGrid();
           Controller.onleavenone();
+          Controller.onready();
           document.getElementById('default').checked = true;
           document.getElementById('path').checked = true;
           Controller.setButtonStates({
