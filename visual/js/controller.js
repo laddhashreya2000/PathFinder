@@ -474,13 +474,14 @@ $.extend(Controller, {
     },
     onnode: function(event, from, to) {
       setTimeout(function() {
-          View.dynamicStats('Node size changed. Start '+ Controller.StatsState[Controller.stype] +' again')
           Controller.clearOperations();
           Controller.clearAll();
           Controller.getGridSize();
           Controller.buildNewGrid();
           Controller.onleavenone();
-          // Controller.onleavenone();
+
+          // Controller.onraceset();
+          // ($('input[name=stype]').val() == "0zero").checked = true;
       }, View.nodeColorizeEffect.duration * 1.2);
     },
 	onraceset: function(event, from, to) {
@@ -490,6 +491,7 @@ $.extend(Controller, {
         setTimeout(function() {
             Controller.clearOperations();
             Controller.clearAll();
+            Controller.getGridSize();
             Controller.buildNewGrid();
             if(a === "1one") {
 			           Controller.setDefaultStartEndPos2();
@@ -1043,8 +1045,8 @@ $.extend(Controller, {
             endX, endY,
             nodeSize = View.nodeSize;
 
-        width  = this.gridSize[0]*30;
-        height = this.gridSize[1]*30;
+        width  = $(window).width();
+        height = $(window).height();
 
         marginRight = $('#algorithm_panel').width();
         availWidth = width - marginRight;
