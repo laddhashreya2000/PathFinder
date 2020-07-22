@@ -371,17 +371,15 @@ $.extend(Controller, {
         // => ready
     },
     onfinish: function(event, from, to) {
-        if(this.setType === "0zero"){
+      if(this.setType === "0zero"){
         View.showStats({
             pathLength: PF.Util.pathLength(this.path),
             timeSpent:  this.timeSpent,
             operationCount: this.operationCount,
         });
         View.drawPath(this.path, 0);
-
-        if(!this.path.length) {window.alert("There is no path possible"); }
-	  }
-      else{
+      }        
+	  else{
 
 		var path = this.graph;
 
@@ -1028,6 +1026,7 @@ $.extend(Controller, {
 		}
     },
     isStartPos: function(gridX, gridY) {
+		if(this.endNodes[0] === undefined) return false;
         return gridX === this.endNodes[0][0] && gridY === this.endNodes[0][1];
     },
     isEndPos: function(gridX, gridY,n) {
