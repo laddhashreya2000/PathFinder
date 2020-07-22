@@ -477,9 +477,14 @@ $.extend(Controller, {
           Controller.getGridSize();
           Controller.buildNewGrid();
           Controller.onleavenone();
-
-          // Controller.onraceset();
-          // ($('input[name=stype]').val() == "0zero").checked = true;
+          document.getElementById('default').checked = true;
+          document.getElementById('path').checked = true;
+          Controller.setButtonStates({
+              id: 4,
+              text: 'Set Dest',
+              enabled: true,
+              callback: $.proxy(this.resume, this),
+          });
       }, View.nodeColorizeEffect.duration * 1.2);
     },
 	onraceset: function(event, from, to) {
