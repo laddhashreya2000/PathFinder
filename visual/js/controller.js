@@ -17,8 +17,13 @@ var Controller = StateMachine.create({
             from: '*',
             to:   'ready'
         },
-		{
+		    {
             name: 'raceset',
+            from: '*',
+            to:   'ready'
+        },
+        {
+            name: 'node',
             from: '*',
             to:   'ready'
         },
@@ -134,8 +139,8 @@ $.extend(Controller, {
         View.setNodeSize(zoom);
         // $.getScript('main.js');
         // document.location.reload(true);
-        Controller.setDefaultStartEndPos();
-        Controller.onleavenone();
+        // Controller.setDefaultStartEndPos();
+        // Controller.onleavenone();
     },
     showinstructions: function() {
     	// get the screen height and width
@@ -152,6 +157,7 @@ $.extend(Controller, {
       $('#instructions_panel').show();
     },
     getGridSize: function() {
+      Controller.getNodeSize();
       var width = Math.floor($(window).width()/View.nodeSize) +1,
           height = Math.floor($(window).height()/View.nodeSize) + 1;
       console.log(width);
@@ -466,6 +472,17 @@ $.extend(Controller, {
         }, View.nodeColorizeEffect.duration * 1.2);
         // => ready
     },
+    onnode: function(event, from, to) {
+      setTimeout(function() {
+          View.dynamicStats('Node size changed. Start '+ Controller.StatsState[Controller.stype] +' again')
+          Controller.clearOperations();
+          Controller.clearAll();
+          Controller.getGridSize();
+          Controller.buildNewGrid();
+          Controller.onleavenone();
+          // Controller.onleavenone();
+      }, View.nodeColorizeEffect.duration * 1.2);
+    },
 	onraceset: function(event, from, to) {
 		var a = this.setType = this.getStype();
 		this.stype = a[0];
@@ -475,15 +492,15 @@ $.extend(Controller, {
             Controller.clearAll();
             Controller.buildNewGrid();
             if(a === "1one") {
-			    Controller.setDefaultStartEndPos2();
-                View.dynamicStats('Start racing');
-				x.innerHTML = "Welcome to the race between rovers. <br> Enjoy the race.";
-			}
-		    else {
-			    Controller.setDefaultStartEndPos();
-				View.dynamicStats('Start searching');
-				x.innerHTML = "Welcome!! <br>Find the shortest path from rover to destination.";
-			}
+			           Controller.setDefaultStartEndPos2();
+                 View.dynamicStats('Start racing');
+				         x.innerHTML = "Welcome to the race between rovers. <br> Enjoy the race.";
+			      }
+    		    else {
+        			  Controller.setDefaultStartEndPos();
+        				View.dynamicStats('Start searching');
+        				x.innerHTML = "Welcome!! <br>Find the shortest path from rover to destination.";
+    			}
         }, View.nodeColorizeEffect.duration * 1.2);
 
 		this.setButtonStates({
