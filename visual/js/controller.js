@@ -132,17 +132,18 @@ var Controller = StateMachine.create({
 
 $.extend(Controller, {
     operationsPerSecond: 300,
-	zoom : 100,
+	zoom: 100,
 	RoverImg: ['./visual/js/mars_rover.png', './visual/js/mars_rover2.png', './visual/js/mars_rover3.png'],
 	StatsState: ["Searching", "Racing"],
     getNodeSize: function() {
         var zoom = $('input[name=nodesize]').val();
 		if(zoom >=50 && zoom <=250){
            View.setNodeSize(zoom);
-		   this.zoom = zoom;
+		   this.zoom  = zoom;
 		}
 		else{
-            window.alert("Please enter a number between 50 and 250");		
+            window.alert("Please enter a number between 50 and 250");	
+            $( "#spinner" ).val(this.zoom);			
 		}	     
     },
     showinstructions: function() {
@@ -481,7 +482,7 @@ $.extend(Controller, {
     },
     onnode: function(event, from, to) {
 		Controller.getNodeSize();
-        setTimeout(function() {
+		setTimeout(function() {
             Controller.clearOperations();
             Controller.clearAll();
 			Controller.clearFootprints();

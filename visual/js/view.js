@@ -54,6 +54,7 @@ var View = {
         'stroke-width': 3,
     },
 	roverimg: ['./visual/js/mars_rover3.png', './visual/js/mars_rover.png', './visual/js/mars_rover2.png'],
+	rovercolor: ['./visual/js/CadetBlue.png', './visual/js/LightPink.png', './visual/js/SandyBrown.png'],
     supportedOperations: ['opened', 'closed', 'tested'],
     init: function(opts) {
         this.numCols      = opts.numCols;
@@ -175,12 +176,12 @@ var View = {
             ).attr(this.nodeStyle.normal)
              .animate({fill: this.nodeStyle.start.fill[n], 'stroke-opacity': 0.2 }, 1000);
 			 
-			 this.start_img[n] = this.paper.image( this.roverimg[n], coord[0], coord[1], this.nodeSize, this.nodeSize ).toFront();
+			 this.start_img[n] = this.paper.image( this.rovercolor[n], coord[0], coord[1], this.nodeSize, this.nodeSize ).toFront();
 		}
 		else {
             this.startNodes[n].attr({ x: coord[0], y: coord[1] }).toFront();
 			this.start_img[n].remove();
-			this.start_img[n] = this.paper.image( this.roverimg[n], coord[0], coord[1], this.nodeSize, this.nodeSize ).toFront();
+			this.start_img[n] = this.paper.image( this.rovercolor[n], coord[0], coord[1], this.nodeSize, this.nodeSize ).toFront();
         }
     },
 
