@@ -163,6 +163,7 @@ var View = {
         var coord = this.toPageCoordinate(gridX, gridY);
         if (!this.startNodes)  {
 			this.startNodes = new Array;
+			this.start_img = new Array;
         }
 		if(!this.startNodes[n]){
 
@@ -173,9 +174,13 @@ var View = {
                 this.nodeSize
             ).attr(this.nodeStyle.normal)
              .animate({fill: this.nodeStyle.start.fill[n], 'stroke-opacity': 0.2 }, 1000);
+			 
+			 this.start_img[n] = this.paper.image( this.roverimg[n], coord[0], coord[1], this.nodeSize, this.nodeSize ).toFront();
 		}
 		else {
             this.startNodes[n].attr({ x: coord[0], y: coord[1] }).toFront();
+			this.start_img[n].remove();
+			this.start_img[n] = this.paper.image( this.roverimg[n], coord[0], coord[1], this.nodeSize, this.nodeSize ).toFront();
         }
     },
 
@@ -313,6 +318,7 @@ var View = {
             this.rects[y][x].attr(this.nodeStyle.normal);
             this.setCoordDirty(x, y, false);
         }
+		this.coordDirty = undefined;
     },
     clearBlockedNodes: function() {
         var i, j, blockedNodes = this.blockedNodes;
@@ -327,6 +333,7 @@ var View = {
                 }
             }
         }
+		this.blockedNodes = undefined;
     },
     drawPath: function(path, n, i) {
         if (!path.length) {

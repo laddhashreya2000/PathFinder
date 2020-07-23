@@ -132,11 +132,18 @@ var Controller = StateMachine.create({
 
 $.extend(Controller, {
     operationsPerSecond: 300,
+	zoom : 100,
 	RoverImg: ['./visual/js/mars_rover.png', './visual/js/mars_rover2.png', './visual/js/mars_rover3.png'],
 	StatsState: ["Searching", "Racing"],
     getNodeSize: function() {
         var zoom = $('input[name=nodesize]').val();
-        View.setNodeSize(zoom);
+		if(zoom >=50 && zoom <=250){
+           View.setNodeSize(zoom);
+		   this.zoom = zoom;
+		}
+		else{
+            window.alert("Please enter a number between 50 and 250");		
+		}	     
     },
     showinstructions: function() {
     	// get the screen height and width
@@ -153,7 +160,7 @@ $.extend(Controller, {
       $('#instructions_panel').show();
     },
     getGridSize: function() {
-      Controller.getNodeSize();
+     // Controller.getNodeSize();
       var width = Math.floor($(window).width()/View.nodeSize) +1,
           height = Math.floor($(window).height()/View.nodeSize) + 1;
       this.gridSize = [width,height];
@@ -163,8 +170,8 @@ $.extend(Controller, {
       return destattr;
     },
   	getStype: function(){
-          var stype =$('input[name=stype]:checked').val();
-      	return stype;
+        var stype =$('input[name=stype]:checked').val();
+		return stype;
     },
 
     /**
@@ -183,16 +190,18 @@ $.extend(Controller, {
         });
 
 	    this.endNodes = new Array;
-      this.startNodes = new Array;
-		  this.stype = 0;
-		  this.setType = "0zero";
+        this.startNodes = new Array;
+	    this.stype = 0;
+	    this.setType = this.getStype();
 
         var x = document.getElementById("WelcomeMsg");
         setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3500);
 
         View.generateGrid(function() {
-            Controller.setDefaultStartEndPos();
-            Controller.bindEvents();
+			console.log(Controller.setType);
+            if(Controller.setType === "0zero") Controller.setDefaultStartEndPos();
+            else Controller.setDefaultStartEndPos2();
+			Controller.bindEvents();
             Controller.transition(); // transit to the next state (ready)
         });
 
@@ -464,28 +473,25 @@ $.extend(Controller, {
         setTimeout(function() {
             View.dynamicStats('Reset done. Start '+ Controller.StatsState[Controller.stype] +' again')
             Controller.clearOperations();
+            Controller.clearFootprints();
             Controller.clearAll();
             Controller.buildNewGrid();
         }, View.nodeColorizeEffect.duration * 1.2);
         // => ready
     },
     onnode: function(event, from, to) {
-      setTimeout(function() {
-          Controller.clearOperations();
-          Controller.clearAll();
-          Controller.getGridSize();
-          Controller.buildNewGrid();
-          Controller.onleavenone();
-          Controller.onready();
-          document.getElementById('default').checked = true;
-          document.getElementById('path').checked = true;
-          Controller.setButtonStates({
-              id: 4,
-              text: 'Set Dest',
-              enabled: true,
-              callback: $.proxy(this.resume, this),
-          });
-      }, View.nodeColorizeEffect.duration * 1.2);
+		Controller.getNodeSize();
+        setTimeout(function() {
+            Controller.clearOperations();
+            Controller.clearAll();
+			Controller.clearFootprints();
+            Controller.getGridSize();
+            Controller.buildNewGrid();
+            Controller.onleavenone();
+			document.getElementById("button3").click();
+            Controller.onready(); 
+		 
+        }, View.nodeColorizeEffect.duration * 1.2);
     },
 	onraceset: function(event, from, to) {
 		var a = this.setType = this.getStype();
@@ -497,15 +503,15 @@ $.extend(Controller, {
             Controller.getGridSize();
             Controller.buildNewGrid();
             if(a === "1one") {
-			           Controller.setDefaultStartEndPos2();
-                 View.dynamicStats('Start racing');
-				         x.innerHTML = "Welcome to the race between rovers. <br> Enjoy the race.";
-			      }
-    		    else {
-        			  Controller.setDefaultStartEndPos();
-        				View.dynamicStats('Start searching');
-        				x.innerHTML = "Welcome!! <br>Find the shortest path from rover to destination.";
-    			}
+			    Controller.setDefaultStartEndPos2();
+                View.dynamicStats('Start racing');
+	            x.innerHTML = "Welcome to the race between rovers. <br> Enjoy the race.";
+    	    }
+    	    else {
+    			Controller.setDefaultStartEndPos();
+        		View.dynamicStats('Start searching');
+        		x.innerHTML = "Welcome!! <br>Find the shortest path from rover to destination.";
+    		}
         }, View.nodeColorizeEffect.duration * 1.2);
 
 		this.setButtonStates({
@@ -967,14 +973,14 @@ $.extend(Controller, {
            }
 		}
 
-        this.setStartPos(centerX - 5, centerY);
-        this.setEndPos(centerX + 5, centerY, 1);
+        this.setStartPos(centerX - 4, centerY);
+        this.setEndPos(centerX + 4, centerY, 1);
 
 		if(Controller.getDest() === "Two") {
-            this.setEndPos(centerX, centerY+5, 2);
+            this.setEndPos(centerX, centerY+4, 2);
 
 			if(this.endNodes[4]){
-         this.setEndPos(64*nodeSize, 36*nodeSize, 4);
+               this.setEndPos(64*nodeSize, 36*nodeSize, 4);
 			   this.endNodes.splice(4);
       }
 
@@ -984,8 +990,8 @@ $.extend(Controller, {
       }
     }
     else if(Controller.getDest() === "Three"){
-        this.setEndPos(centerX, centerY+5, 2);
-        this.setEndPos(centerX, centerY-5, 3);
+        this.setEndPos(centerX, centerY+4, 2);
+        this.setEndPos(centerX, centerY-4, 3);
 
 			if(this.endNodes[4]){
                this.setEndPos(64*nodeSize, 36*nodeSize, 4);
@@ -993,9 +999,10 @@ $.extend(Controller, {
             }
         }
 		else if(Controller.getDest() === "Four"){
-            this.setEndPos(centerX, centerY+5, 2);
-            this.setEndPos(centerX, centerY-5, 3);
-			this.setEndPos(centerX-10, centerY, 4);
+			this.setStartPos(centerX, centerY);
+            this.setEndPos(centerX, centerY+4, 2);
+            this.setEndPos(centerX, centerY-4, 3);
+			this.setEndPos(centerX-4, centerY, 4);
 
 		}
         else{
@@ -1065,10 +1072,10 @@ $.extend(Controller, {
 		this.setStartPos(64*nodeSize, 36*nodeSize);
 		this.endNodes.splice(0);
 
-        this.setStartPos2(centerX-1, centerY, 0);
-	    this.setStartPos2(centerX+4, centerY-5, 1);
-	    this.setStartPos2(centerX+4, centerY+5, 2);
-        this.setEndPos2(centerX+4, centerY, 3);
+        this.setStartPos2(centerX-2, centerY, 0);
+	    this.setStartPos2(centerX+3, centerY-4, 1);
+	    this.setStartPos2(centerX+3, centerY+4, 2);
+        this.setEndPos2(centerX+3, centerY, 3);
 
     },
     setStartPos2: function(gridX, gridY, n) {
