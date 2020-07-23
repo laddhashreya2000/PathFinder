@@ -366,22 +366,19 @@ $.extend(Controller, {
 	callback: function(path, i, pathLen, t, n){
 		var path1 = [path[i-1], path[i]],
 		    len1 = PF.Util.pathLength(path1);   // length of the step (either 1 or sqrt(2))
-			t = t+ len1;                        // t = length till this step
+			t = t+ len1;                        // t = length till this step		
 		
-		setTimeout(function() {
-			View.drawPath(path1, n, i-1);   // draws 1 step path of rover
-			View.setRoverPos2(path[i][0], path[i][1], n);    // set the position of rover to the current point
-		}, (len1-1)*500);  
+		if(t<=pathLen){
+		    setTimeout(function() {
+			    View.drawPath(path1, n, i-1);                    // draws 1 step path of rover
+			    View.setRoverPos2(path[i][0], path[i][1], n);    // set the position of rover to the current point
+		    }, (len1-1)*500);
+		}	
 		
-		if(t<pathLen){          // while no rover has reached the destination
-			path_next = [path[i], path[i+1]];
-			var s = t + PF.Util.pathLength(path_next);
-		  
-		    if(s<=pathLen){     // if travelling the next point to path exceeds the pathLen then don't travel that node
-			    setTimeout(function(){
-				    Controller.callback(path, i+1, pathLen, t, n);
-			    }, len1*500);
-            }			
+		if(t<pathLen){                // while no rover has reached the destination
+		    setTimeout(function(){
+			    Controller.callback(path, i+1, pathLen, t, n);
+		    }, len1*500);		
 		}
 	},	
     onfinish: function(event, from, to) {
@@ -419,9 +416,9 @@ $.extend(Controller, {
 		    var pathLen = path[this.winner[0]][0];
 		    
 			setTimeout(function(){
-				Controller.callback(path[0][1], 1, pathLen, 0, 0);
-				Controller.callback(path[1][1], 1, pathLen, 0, 1);
-				Controller.callback(path[2][1], 1, pathLen, 0, 2);
+				if(path[0][1].length)  {Controller.callback(path[0][1], 1, pathLen, 0, 0); }
+				if(path[1][1].length)  {Controller.callback(path[1][1], 1, pathLen, 0, 1); }
+				if(path[2][1].length)  {Controller.callback(path[2][1], 1, pathLen, 0, 2); }
 			}, 500);
 				
 			setTimeout(function(){
