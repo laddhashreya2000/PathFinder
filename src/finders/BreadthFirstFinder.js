@@ -38,104 +38,132 @@ function BreadthFirstFinder(opt) {
  *     end positions.
  */
 BreadthFirstFinder.prototype.findPath = function(startX, startY, endX, endY, grid) {
+    
+    bi = this.biDirectional;
+
+if(!bi){
     var openList = [],
-        startnode = grid.getNodeAt(startX, startY),
-        endnode   = grid.getNodeAt(endX, endY),
-        neighbours, neighbour, i, node,
-        bi = this.biDirectional;
-    
-    var by_start = 1, by_end = 2,
-        endList=[];
+        diagonalMovement = this.diagonalMovement,
+        startNode = grid.getNodeAt(startX, startY),
+        endNode = grid.getNodeAt(endX, endY),
+        neighbors, neighbor, node, i, l;
 
-    startnode.by = by_start;
-    endList.push(endnode);
-    endnode.opened = true;
-    endnode.by = by_end;
+    // push the start pos into the queue
+    openList.push(startNode);
+    startNode.opened = true;
 
-    openList.push(startnode);
-    startnode.opened = true;
-
-    if(!bi){
-
-    while(openList.length){
+    // while the queue is not empty
+    while (openList.length) {
+        // take the front node from the queue
         node = openList.shift();
         node.closed = true;
 
-        if(node == endnode) return Util.backtrace(endnode);
-
-        neighbours = grid.getNeighbors(node, this.diagonalMovement);
-
-        for(i=0; i<neighbours.length; ++i){
-            neighbour = neighbours[i];
-
-            if(!neighbour.opened){
-                openList.push(neighbour);
-                neighbour.parent = node;
-                neighbour.opened = true;
-            }
+        // reached the end position
+        if (node === endNode) {
+            return Util.backtrace(endNode);
         }
-    }
 
-    return [];
-   }
+        neighbors = grid.getNeighbors(node, diagonalMovement);
+        for (i = 0, l = neighbors.length; i < l; ++i) {
+            neighbor = neighbors[i];
 
-  else{
-    
-
-    while(openList.length && endList.length){
-        node = openList.shift();
-        node.closed = true;
-
-        neighbours = grid.getNeighbors(node, this.diagonalMovement);
-
-        for(i=0; i<neighbours.length; ++i){
-            neighbour = neighbours[i];
-            
-            if (neighbour.closed) {
+            // skip this neighbor if it has been inspected before
+            if (neighbor.closed || neighbor.opened) {
                 continue;
             }
-            if (neighbour.opened) {
+
+            openList.push(neighbor);
+            neighbor.opened = true;
+            neighbor.parent = node;
+        }
+    }
+    
+    // fail to find the path
+    return [];
+}
+
+
+else{
+  
+    var startNode = grid.getNodeAt(startX, startY),
+        endNode = grid.getNodeAt(endX, endY),
+        startOpenList = [], endOpenList = [],
+        neighbors, neighbor, node,
+        diagonalMovement = this.diagonalMovement,
+        BY_START = 0, BY_END = 1,
+        i, l;
+
+    // push the start and end nodes into the queues
+    startOpenList.push(startNode);
+    startNode.opened = true;
+    startNode.by = BY_START;
+
+    endOpenList.push(endNode);
+    endNode.opened = true;
+    endNode.by = BY_END;
+
+    // while both the queues are not empty
+    while (startOpenList.length && endOpenList.length) {
+
+        // expand start open list
+
+        node = startOpenList.shift();
+        node.closed = true;
+
+        neighbors = grid.getNeighbors(node, diagonalMovement);
+        for (i = 0, l = neighbors.length; i < l; ++i) {
+            neighbor = neighbors[i];
+
+            if (neighbor.closed) {
+                continue;
+            }
+            if (neighbor.opened) {
                 // if this node has been inspected by the reversed search,
                 // then a path is found.
-                if (neighbour.by === by_end) {
-                    return Util.biBacktrace(node, neighbour);
+                if (neighbor.by === BY_END) {
+                    return Util.biBacktrace(node, neighbor);
                 }
                 continue;
             }
-            openList.push(neighbour);
-            neighbour.parent = node;
-            neighbour.opened = true;
-            neighbour.by = by_start;
+            startOpenList.push(neighbor);
+            neighbor.parent = node;
+            neighbor.opened = true;
+            neighbor.by = BY_START;
         }
 
-        node = endList.shift();
+        // expand end open list
+
+        node = endOpenList.shift();
         node.closed = true;
 
-        neighbours = grid.getNeighbors(node, this.diagonalMovement);
+        neighbors = grid.getNeighbors(node, diagonalMovement);
+        for (i = 0, l = neighbors.length; i < l; ++i) {
+            neighbor = neighbors[i];
 
-        for(i=0; i<neighbours.length; ++i){
-            neighbour = neighbours[i];
-
-            if (neighbour.closed) {
+            if (neighbor.closed) {
                 continue;
             }
-            if (neighbour.opened) {
-                if (neighbour.by === by_start) {
-                    return Util.biBacktrace(neighbour, node);
+            if (neighbor.opened) {
+                if (neighbor.by === BY_START) {
+                    return Util.biBacktrace(neighbor, node);
                 }
                 continue;
             }
-            endList.push(neighbour);
-            neighbour.parent = node;
-            neighbour.opened = true;
-            neighbour.by = by_end;
+            endOpenList.push(neighbor);
+            neighbor.parent = node;
+            neighbor.opened = true;
+            neighbor.by = BY_END;
         }
-
     }
 
+    // fail to find the path
     return [];
 
 }
-};
+}
+;
 
 module.exports = BreadthFirstFinder;
+
+
+
