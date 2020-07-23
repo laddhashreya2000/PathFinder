@@ -43,14 +43,6 @@ BreadthFirstFinder.prototype.findPath = function(startX, startY, endX, endY, gri
         endnode   = grid.getNodeAt(endX, endY),
         neighbours, neighbour, i, node,
         bi = this.biDirectional;
-    
-    var by_start = 1, by_end = 2,
-        endList=[];
-
-    startnode.by = by_start;
-    endList.push(endnode);
-    endnode.opened = true;
-    endnode.by = by_end;
 
     openList.push(startnode);
     startnode.opened = true;
@@ -61,26 +53,35 @@ BreadthFirstFinder.prototype.findPath = function(startX, startY, endX, endY, gri
         node = openList.shift();
         node.closed = true;
 
-        if(node == endnode) return Util.backtrace(endnode);
-
+        if(node === endnode) {
+          return Util.backtrace(endnode);
+        }
         neighbours = grid.getNeighbors(node, this.diagonalMovement);
 
         for(i=0; i<neighbours.length; ++i){
             neighbour = neighbours[i];
-
-            if(!neighbour.opened){
-                openList.push(neighbour);
-                neighbour.parent = node;
-                neighbour.opened = true;
+            // skip this neighbor if it has been inspected before
+            if (neighbour.closed || neighbour.opened) {
+                continue;
             }
+
+            openList.push(neighbour);
+            neighbour.opened = true;
+            neighbour.parent = node;
         }
+
     }
 
-    return [];
-   }
+}
 
   else{
-    
+    var by_start = 1, by_end = 2,
+        endList=[];
+
+    startnode.by = by_start;
+    endList.push(endnode);
+    endnode.opened = true;
+    endnode.by = by_end;
 
     while(openList.length && endList.length){
         node = openList.shift();
@@ -90,7 +91,7 @@ BreadthFirstFinder.prototype.findPath = function(startX, startY, endX, endY, gri
 
         for(i=0; i<neighbours.length; ++i){
             neighbour = neighbours[i];
-            
+
             if (neighbour.closed) {
                 continue;
             }
@@ -132,10 +133,9 @@ BreadthFirstFinder.prototype.findPath = function(startX, startY, endX, endY, gri
         }
 
     }
-
+}
     return [];
 
-}
 };
 
 module.exports = BreadthFirstFinder;
