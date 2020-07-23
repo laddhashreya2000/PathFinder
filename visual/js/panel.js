@@ -29,15 +29,15 @@ var Panel = {
             top: $algo.offset().top + $algo.outerHeight() + 20
         });
 		$('#RoverRace').css({
-            top: $('#instructions_panel').offset().top + $('#instructions_panel').outerHeight() + 20
+            top: $('#instructions_panel').offset().top + $('#instructions_panel').outerHeight() + 10
         });
         $('#NoOfDest').css({
-            top: $('#instructions_panel').offset().top + $('#instructions_panel').outerHeight() +$('#RoverRace').offset().top + $('RoverRace').outerHeight() - 10
+            top: $('#instructions_panel').offset().top + $('#instructions_panel').outerHeight() +$('#RoverRace').offset().top + $('RoverRace').outerHeight() - 60
         });
         $('#button2').attr('disabled', 'disabled');
         $('#NodeSize').css({
             top: $('#instructions_panel').offset().top + $('#instructions_panel').outerHeight() + $('#NoOfDest').offset().top + $('NoOfDest').outerHeight() 
-			 +$('#RoverRace').offset().top + $('RoverRace').outerHeight() - 200
+			 +$('#RoverRace').offset().top + $('RoverRace').outerHeight() - 270
         });
     },
     /**
