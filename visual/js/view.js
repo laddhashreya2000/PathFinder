@@ -328,13 +328,14 @@ var View = {
             }
         }
     },
-    drawPath: function(path, n) {
+    drawPath: function(path, n, i) {
         if (!path.length) {
             return;
         }
         var svgPath = this.buildSvgPath(path);
         if(!this.path) this.path = new Array;
-        this.path[n] = this.paper.path(svgPath).attr({stroke: this.pathStyle.stroke[n], 'stroke-width': 3});
+		if(!this.path[n]) this.path[n] = new Array;
+        this.path[n][i] = this.paper.path(svgPath).attr({stroke: this.pathStyle.stroke[n], 'stroke-width': 3});
     },
     /**
      * Given a path, build its SVG represention.
@@ -354,7 +355,9 @@ var View = {
     clearPath: function() {
         if (this.path){
 			for(var i=0; i<this.path.length; i++){
-               this.path[i].remove();
+                for(var j=0; j<this.path[i].length; j++){			
+                    this.path[i][j].remove();
+				}	
 			}
         }
     },
