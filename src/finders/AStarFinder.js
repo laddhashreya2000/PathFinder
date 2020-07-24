@@ -2,38 +2,13 @@ var Heap       = require('heap');
 var Util       = require('../core/Util');
 var Heuristic  = require('../core/Heuristic');
 var DiagonalMovement = require('../core/DiagonalMovement');
-
-function Algo(val, neighbor, node, weight, heuristic, list, endX, endY) {
-      var x, y, ng, abs = Math.abs, SQRT2 = Math.SQRT2;
-
-      x = neighbor.x;
-      y = neighbor.y;
-
-      ng = node.g + ((x - node.x === 0 || y - node.y === 0) ? 1 : SQRT2);
-
-      if (!neighbor.opened || ng < neighbor.g) {
-          neighbor.g = ng;
-          neighbor.h = neighbor.h || weight * heuristic(abs(x - endX), abs(y - endY));
-          neighbor.f = neighbor.g + neighbor.h;
-          neighbor.parent = node;
-
-          if (!neighbor.opened) {
-              list.push(neighbor);
-              neighbor.opened = val;
-          } else {
-              list.updateItem(neighbor);
-          }
-      }
-      return list;
-  }
-
 /**
  * A* path-finder. Based upon https://github.com/bgrins/javascript-astar
  * @constructor
  * @param {Object} opt
  * @param {boolean} opt.allowDiagonal Whether diagonal movement is allowed.
  *     Deprecated, use diagonalMovement instead.
- * @param {boolean} opt.dontCrossCorners Disallow diagonal movement touching
+ * @param {boolean} opt.dontCrossCorners Disallow diagonal movement touching 
  *     block corners. Deprecated, use diagonalMovement instead.
  * @param {boolean} opt.biDirectional For BiAStar Algorithm
  * @param {DiagonalMovement} opt.diagonalMovement Allowed diagonal movement.
@@ -42,7 +17,6 @@ function Algo(val, neighbor, node, weight, heuristic, list, endX, endY) {
  * @param {number} opt.weight Weight to apply to the heuristic to allow for
  *     suboptimal paths, in order to speed up the search.
  */
-
 function AStarFinder(opt) {
     opt = opt || {};
     this.allowDiagonal = opt.allowDiagonal;
@@ -63,7 +37,6 @@ function AStarFinder(opt) {
             }
         }
     }
-
     // When diagonal movement is allowed the manhattan heuristic is not
     //admissible. It should be octile instead
     if (this.diagonalMovement === DiagonalMovement.Never) {
@@ -72,110 +45,199 @@ function AStarFinder(opt) {
         this.heuristic = opt.heuristic || Heuristic.octile;
     }
 }
-
 /**
  * Find and return the the path.
  * @return {Array<Array<number>>} The path, including both start and
  *     end positions.
  */
- AStarFinder.prototype.findPath = function(startX, startY, endX, endY, grid) {
-    var startNode = grid.getNodeAt(startX, startY),
+AStarFinder.prototype.findPath = function(startX, startY, endX, endY, grid) {
+    var bi = this.biDirectional;
+
+if(!bi){
+    var openList = new Heap(function(nodeA, nodeB) {
+            return nodeA.f - nodeB.f;
+        }),
+        startNode = grid.getNodeAt(startX, startY),
         endNode = grid.getNodeAt(endX, endY),
         heuristic = this.heuristic,
         diagonalMovement = this.diagonalMovement,
         weight = this.weight,
-        i, l, x, y, ng,k,
         abs = Math.abs, SQRT2 = Math.SQRT2,
-        bi = this.biDirectional,
-        cmp = function(nodeA, nodeB) {
-            return nodeA.f - nodeB.f;
-        };
+        node, neighbors, neighbor, i, l, x, y, ng;
     // set the `g` and `f` value of the start node to be 0
     startNode.g = 0;
     startNode.f = 0;
-
     // push the start node into the open list
-    openList = new Heap(cmp);
     openList.push(startNode);
-
-    if(!bi){
-        startNode.opened = true;
-        // while the open list is not empty
-        while (!openList.empty()) {
-            // pop the position of node which has the minimum `f` value.
-            var node = openList.pop();
-            node.closed = true;
-
-            // if reached the end position, construct the path and return it
-            if (node === endNode) {
-                return Util.backtrace(endNode);
+    startNode.opened = true;
+    // while the open list is not empty
+    while (!openList.empty()) {
+        // pop the position of node which has the minimum `f` value.
+        node = openList.pop();
+        node.closed = true;
+        // if reached the end position, construct the path and return it
+        if (node === endNode) {
+            return Util.backtrace(endNode);
+        }
+        // get neigbours of the current node
+        neighbors = grid.getNeighbors(node, diagonalMovement);
+        for (i = 0, l = neighbors.length; i < l; ++i) {
+            neighbor = neighbors[i];
+            if (neighbor.closed) {
+                continue;
             }
-
-            var neighbors = grid.getNeighbors(node, diagonalMovement);
-            for (i = 0, l = neighbors.length; i < l; ++i) {
-                var neighbor = neighbors[i];
-
-                if (neighbor.closed) {
-                    continue;
+            x = neighbor.x;
+            y = neighbor.y;
+            // get the distance between current node and the neighbor
+            // and calculate the next g score
+            ng = node.g + ((x - node.x === 0 || y - node.y === 0) ? 1 : SQRT2);
+            // check if the neighbor has not been inspected yet, or
+            // can be reached with smaller cost from the current node
+            if (!neighbor.opened || ng < neighbor.g) {
+                neighbor.g = ng;
+                neighbor.h = neighbor.h || weight * heuristic(abs(x - endX), abs(y - endY));
+                neighbor.f = neighbor.g + neighbor.h;
+                neighbor.parent = node;
+                if (!neighbor.opened) {
+                    openList.push(neighbor);
+                    neighbor.opened = true;
+                } else {
+                    // the neighbor can be reached with smaller cost.
+                    // Since its f value has been updated, we have to
+                    // update its position in the open list
+                    openList.updateItem(neighbor);
                 }
-
-                openList = Algo(1, neighbor, node, weight, heuristic, openList, endX, endY);
             }
-        } // end while not open list empty
-    }
+        } // end for each neighbor
+    } // end while not open list empty
+}
 
-    else{
+else{
 
-      var endOpenList = new Heap(cmp),
-      BY_START = 1, BY_END = 2;
+    var cmp = function(nodeA, nodeB) {
+        return nodeA.f - nodeB.f;
+    },
+    startOpenList = new Heap(cmp),
+    endOpenList = new Heap(cmp),
+    startNode = grid.getNodeAt(startX, startY),
+    endNode = grid.getNodeAt(endX, endY),
+    heuristic = this.heuristic,
+    diagonalMovement = this.diagonalMovement,
+    weight = this.weight,
+    abs = Math.abs, SQRT2 = Math.SQRT2,
+    node, neighbors, neighbor, i, l, x, y, ng,
+    BY_START = 1, BY_END = 2;
 
-      startNode.opened = BY_START;
+// set the `g` and `f` value of the start node to be 0
+// and push it into the start open list
+startNode.g = 0;
+startNode.f = 0;
+startOpenList.push(startNode);
+startNode.opened = BY_START;
 
-      // set the `g` and `f` value of the end node to be 0
-      // and push it into the open open list
-      endNode.g = 0;
-      endNode.f = 0;
-      endOpenList.push(endNode);
-      endNode.opened = BY_END;
+// set the `g` and `f` value of the end node to be 0
+// and push it into the open open list
+endNode.g = 0;
+endNode.f = 0;
+endOpenList.push(endNode);
+endNode.opened = BY_END;
 
-      // while both the open lists are not empty
-      while (!openList.empty() && !endOpenList.empty()) {
-          // pop the position of start node which has the minimum `f` value.
-          var node = openList.pop();
-          node.closed = true;
+// while both the open lists are not empty
+while (!startOpenList.empty() && !endOpenList.empty()) {
 
-          var neighbors = grid.getNeighbors(node, diagonalMovement);
-          for (i = 0, l = neighbors.length; i < l; ++i) {
-              var neighbor = neighbors[i];
+    // pop the position of start node which has the minimum `f` value.
+    node = startOpenList.pop();
+    node.closed = true;
 
-              if (neighbor.closed) {
-                  continue;
-              }
-              if (neighbor.opened === BY_START) {
-                  return Util.biBacktrace(neighbor, node);
-              }
-              openList = Algo(BY_START, neighbor, node, weight, heuristic, openList, endX, endY);
-          }
-          // if(k) { return openList;}
-          // pop the position of end node which has the minimum `f` value.
-          node = endOpenList.pop();
-          node.closed = true;
+    // get neigbours of the current node
+    neighbors = grid.getNeighbors(node, diagonalMovement);
+    for (i = 0, l = neighbors.length; i < l; ++i) {
+        neighbor = neighbors[i];
 
-          for (i = 0, l = neighbors.length; i < l; ++i) {
-              var neighbor = neighbors[i];
+        if (neighbor.closed) {
+            continue;
+        }
+        if (neighbor.opened === BY_END) {
+            return Util.biBacktrace(node, neighbor);
+        }
 
-              if (neighbor.closed) {
-                  continue;
-              }
-              if (neighbor.opened === BY_START) {
-                  return Util.biBacktrace(neighbor, node);
-              }
-              endOpenList = Algo(BY_END, neighbor, node, weight, heuristic, endOpenList, endX, endY);
-          }
-          // if (k) { return endOpenList;}
-    }
+        x = neighbor.x;
+        y = neighbor.y;
+
+        // get the distance between current node and the neighbor
+        // and calculate the next g score
+        ng = node.g + ((x - node.x === 0 || y - node.y === 0) ? 1 : SQRT2);
+
+        // check if the neighbor has not been inspected yet, or
+        // can be reached with smaller cost from the current node
+        if (!neighbor.opened || ng < neighbor.g) {
+            neighbor.g = ng;
+            neighbor.h = neighbor.h ||
+                weight * heuristic(abs(x - endX), abs(y - endY));
+            neighbor.f = neighbor.g + neighbor.h;
+            neighbor.parent = node;
+
+            if (!neighbor.opened) {
+                startOpenList.push(neighbor);
+                neighbor.opened = BY_START;
+            } else {
+                // the neighbor can be reached with smaller cost.
+                // Since its f value has been updated, we have to
+                // update its position in the open list
+                startOpenList.updateItem(neighbor);
+            }
+        }
+    } // end for each neighbor
+
+
+    // pop the position of end node which has the minimum `f` value.
+    node = endOpenList.pop();
+    node.closed = true;
+
+    // get neigbours of the current node
+    neighbors = grid.getNeighbors(node, diagonalMovement);
+    for (i = 0, l = neighbors.length; i < l; ++i) {
+        neighbor = neighbors[i];
+
+        if (neighbor.closed) {
+            continue;
+        }
+        if (neighbor.opened === BY_START) {
+            return Util.biBacktrace(neighbor, node);
+        }
+
+        x = neighbor.x;
+        y = neighbor.y;
+
+        // get the distance between current node and the neighbor
+        // and calculate the next g score
+        ng = node.g + ((x - node.x === 0 || y - node.y === 0) ? 1 : SQRT2);
+
+        // check if the neighbor has not been inspected yet, or
+        // can be reached with smaller cost from the current node
+        if (!neighbor.opened || ng < neighbor.g) {
+            neighbor.g = ng;
+            neighbor.h = neighbor.h ||
+                weight * heuristic(abs(x - startX), abs(y - startY));
+            neighbor.f = neighbor.g + neighbor.h;
+            neighbor.parent = node;
+
+            if (!neighbor.opened) {
+                endOpenList.push(neighbor);
+                neighbor.opened = BY_END;
+            } else {
+                // the neighbor can be reached with smaller cost.
+                // Since its f value has been updated, we have to
+                // update its position in the open list
+                endOpenList.updateItem(neighbor);
+            }
+        }
+    } // end for each neighbor
+} // end while not open list empty
+
+}
+
+    // fail to find the path
     return [];
-  }
 };
-
 module.exports = AStarFinder;
