@@ -143,7 +143,7 @@ var Panel = {
                                      '.track_recursion:checked').val() !== 'undefined';
             heuristic = $('input[name=orth_jump_point_heuristic]:checked').val();
 
-            finder = new PF.OrthoJumpPointFinder({
+            finder = new PF.JumpPointFinder({
               trackJumpRecursion: trackRecursion,
               heuristic: PF.Heuristic[heuristic],
               diagonalMovement: PF.DiagonalMovement.Never
