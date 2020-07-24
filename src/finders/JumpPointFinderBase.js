@@ -16,7 +16,6 @@ function JumpPointFinderBase(opt) {
     opt = opt || {};
     this.heuristic = opt.heuristic || Heuristic.manhattan;
     this.trackJumpRecursion = opt.trackJumpRecursion || false;
-    this.DiagonalMovement = opt.DiagonalMovement || false;
 }
 
 /**
