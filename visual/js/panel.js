@@ -36,7 +36,7 @@ var Panel = {
         });
         $('#button2').attr('disabled', 'disabled');
         $('#NodeSize').css({
-            top: $('#instructions_panel').offset().top + $('#instructions_panel').outerHeight() + $('#NoOfDest').offset().top + $('NoOfDest').outerHeight() 
+            top: $('#instructions_panel').offset().top + $('#instructions_panel').outerHeight() + $('#NoOfDest').offset().top + $('NoOfDest').outerHeight()
 			 +$('#RoverRace').offset().top + $('RoverRace').outerHeight() - 305
         });
     },
@@ -144,7 +144,7 @@ var Panel = {
                                      '.track_recursion:checked').val() !== 'undefined';
             heuristic = $('input[name=orth_jump_point_heuristic]:checked').val();
 
-            finder = new PF.JumpPointFinder({
+            finder = new PF.OrthoJumpPointFinder({
               trackJumpRecursion: trackRecursion,
               heuristic: PF.Heuristic[heuristic],
               diagonalMovement: PF.DiagonalMovement.Never
