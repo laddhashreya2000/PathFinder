@@ -132,7 +132,7 @@ var Panel = {
                                      '.track_recursion:checked').val() !== 'undefined';
             heuristic = $('input[name=jump_point_heuristic]:checked').val();
 
-            finder = new PF.JPF({
+            finder = new PF.JumpPointFinder({
               trackJumpRecursion: trackRecursion,
               heuristic: PF.Heuristic[heuristic],
               diagonalMovement: PF.DiagonalMovement.IfAtMostOneObstacle
@@ -143,7 +143,7 @@ var Panel = {
                                      '.track_recursion:checked').val() !== 'undefined';
             heuristic = $('input[name=orth_jump_point_heuristic]:checked').val();
 
-            finder = new PF.JPF({
+            finder = new PF.JumpPointFinder({
               trackJumpRecursion: trackRecursion,
               heuristic: PF.Heuristic[heuristic],
               diagonalMovement: PF.DiagonalMovement.Never

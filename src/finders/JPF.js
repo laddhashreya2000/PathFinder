@@ -127,7 +127,7 @@ JPF.prototype._findNeighbors = function(node) {
         // get the normalized direction of travel
         dx = (x - px) / Math.max(Math.abs(x - px), 1);
         dy = (y - py) / Math.max(Math.abs(y - py), 1);
-      
+
       if(di){
         // search diagonally
         if (dx !== 0 && dy !== 0) {
