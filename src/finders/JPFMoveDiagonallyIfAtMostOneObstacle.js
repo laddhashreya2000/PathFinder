@@ -9,6 +9,7 @@ var DiagonalMovement = require('../core/DiagonalMovement');
  * diagonally only when there is at most one obstacle.
  */
 function JPFMoveDiagonallyIfAtMostOneObstacle(opt) {
+    opt = opt || {};
     JumpPointFinderBase.call(this, opt);
 }
 
