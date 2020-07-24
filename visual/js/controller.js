@@ -1,8 +1,6 @@
 /**
  * The visualization controller will works as a state machine.
  * See files under the `doc` folder for transition descriptions.
- * See https://github.com/jakesgordon/javascript-state-machine
- * for the document of the StateMachine module.
  */
 var Controller = StateMachine.create({
     initial: 'none',
@@ -224,33 +222,41 @@ $.extend(Controller, {
         var timeStart, timeEnd;
 
         timeStart = window.performance ? performance.now() : Date.now();
-
-      if(this.setType === "0zero"){                   // if the current category is search
-		var gr = this.makeGraph(this.endNodes),       // finds the path of all possible combination and stores in gr
-            n = this.endNodes.length,                 
-            pathArray = new Array,                    // stores the minimum length path
-            order = {p: new Array},                   // stores the order of endNodes travelled for shortest path 
-            len = this.getPath(1,gr,0,n, order),      // gives the length of the shortest path 
-		    f = order.p.reverse(),  l = f.length;
-
-		for(var j=0; j<l-1; j++){
-			 if(f[j+1] > f[j] ) gr[f[j]][f[j+1]][1].reverse();          //constructs path from the order
-		     pathArray = pathArray.concat(gr[f[j]][f[j+1]][1]);
-		}
-
-        this.path = pathArray;
-      }
-	  else{           // // if the current category is race
-	  
-	    //sets the rover image to the start position
-		View.setRoverPos2(Controller.startNodes[0][0], Controller.startNodes[0][1], 0);
-		View.setRoverPos2(Controller.startNodes[1][0], Controller.startNodes[1][1], 1);
-		View.setRoverPos2(Controller.startNodes[2][0], Controller.startNodes[2][1], 2);
+        this.path_exist = true;
 		
-		this.winner = new Array;         // stores the index of all winner rovers
-        var graph = this.makeGraph2(this.startNodes);     
-        this.graph = graph;              // stores the path of all the rovers
-	  }
+        if(this.setType === "0zero"){                   // if the current category is search
+		    var gr = this.makeGraph(this.endNodes);       // finds the path of all possible combination and stores in gr
+
+		    if(this.path_exist){
+  		  
+			    var n = this.endNodes.length,                 
+                    pathArray = new Array,                    // stores the minimum length path
+                    order = {p: new Array},                   // stores the order of endNodes travelled for shortest path 
+                    len = this.getPath(1,gr,0,n, order),      // gives the length of the shortest path 
+		            f = order.p.reverse(),  l = f.length;
+
+		        for(var j=0; j<l-1; j++){
+			        if(f[j+1] > f[j] ) gr[f[j]][f[j+1]][1].reverse();          //constructs path from the order
+		            pathArray = pathArray.concat(gr[f[j]][f[j+1]][1]);
+		        }
+
+            this.path = pathArray;
+		    }
+		    else{
+				this.path = []; 
+            }
+        }
+	    else{             // if the current category is race
+	  
+	        //sets the rover image to the start position
+		    View.setRoverPos2(Controller.startNodes[0][0], Controller.startNodes[0][1], 0);
+		    View.setRoverPos2(Controller.startNodes[1][0], Controller.startNodes[1][1], 1);
+		    View.setRoverPos2(Controller.startNodes[2][0], Controller.startNodes[2][1], 2);
+		
+		    this.winner = new Array;         // stores the index of all winner rovers
+            var graph = this.makeGraph2(this.startNodes);     
+            this.graph = graph;              // stores the path of all the rovers
+	    }
 
         this.operationCount = this.operations.length;
         timeEnd = window.performance ? performance.now() : Date.now();
@@ -900,6 +906,10 @@ $.extend(Controller, {
                 );
 
                 var len = PF.Util.pathLength(dist);
+				
+				if(!dist.length) {
+					this.path_exist = false; return graph;
+				}
 
 				graph[j][i] = new Array(2);
                 graph[j][i][0]=len;

@@ -363,11 +363,9 @@ var View = {
     clearPath: function() {
         if (this.path){
 			for(var i=0; i<this.path.length; i++){
-			  if(this.path[i]){	
                 for(var j=0; j<this.path[i].length; j++){			
                     this.path[i][j].remove();
 				}
-			  }	
 			}
         }
     },
