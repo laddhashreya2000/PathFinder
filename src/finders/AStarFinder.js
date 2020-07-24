@@ -45,12 +45,49 @@ function AStarFinder(opt) {
         this.heuristic = opt.heuristic || Heuristic.octile;
     }
 }
+
+/**
+ * Find and return the the path.
+ * @return {Array<number>} The path, including both start and
+ *     end positions.
+ */
+
+AStarFinder.prototype.updateList = function(val,node,neighbor,openList,endX,endY){
+
+    var x,y,ng,abs = Math.abs, SQRT2 = Math.SQRT2,
+    heuristic = this.heuristic,
+    weight = this.weight;
+
+    x = neighbor.x;
+    y = neighbor.y;
+            // get the distance between current node and the neighbor
+            // and calculate the next g score
+    ng = node.g + ((x - node.x === 0 || y - node.y === 0) ? 1 : SQRT2);
+            // check if the neighbor has not been inspected yet, or
+            // can be reached with smaller cost from the current node
+    if (!neighbor.opened || ng < neighbor.g) {
+                neighbor.g = ng;
+                neighbor.h = neighbor.h || weight * heuristic(abs(x - endX), abs(y - endY));
+                neighbor.f = neighbor.g + neighbor.h;
+                neighbor.parent = node;
+                if (!neighbor.opened) {
+                    openList.push(neighbor);
+                    neighbor.opened = val;
+                } else {
+                    openList.updateItem(neighbor);
+                }
+                return ;
+
+    }
+}
 /**
  * Find and return the the path.
  * @return {Array<Array<number>>} The path, including both start and
  *     end positions.
  */
-AStarFinder.prototype.findPath = function(startX, startY, endX, endY, grid) {
+
+
+ AStarFinder.prototype.findPath = function(startX, startY, endX, endY, grid) {
     var bi = this.biDirectional;
 
 if(!bi){
@@ -86,31 +123,13 @@ if(!bi){
             if (neighbor.closed) {
                 continue;
             }
-            x = neighbor.x;
-            y = neighbor.y;
-            // get the distance between current node and the neighbor
-            // and calculate the next g score
-            ng = node.g + ((x - node.x === 0 || y - node.y === 0) ? 1 : SQRT2);
-            // check if the neighbor has not been inspected yet, or
-            // can be reached with smaller cost from the current node
-            if (!neighbor.opened || ng < neighbor.g) {
-                neighbor.g = ng;
-                neighbor.h = neighbor.h || weight * heuristic(abs(x - endX), abs(y - endY));
-                neighbor.f = neighbor.g + neighbor.h;
-                neighbor.parent = node;
-                if (!neighbor.opened) {
-                    openList.push(neighbor);
-                    neighbor.opened = true;
-                } else {
-                    // the neighbor can be reached with smaller cost.
-                    // Since its f value has been updated, we have to
-                    // update its position in the open list
-                    openList.updateItem(neighbor);
-                }
+            
+            this.updateList(true,node,neighbor,openList,endX,endY);
+
             }
         } // end for each neighbor
     } // end while not open list empty
-}
+
 
 else{
 
@@ -161,32 +180,7 @@ while (!startOpenList.empty() && !endOpenList.empty()) {
             return Util.biBacktrace(node, neighbor);
         }
 
-        x = neighbor.x;
-        y = neighbor.y;
-
-        // get the distance between current node and the neighbor
-        // and calculate the next g score
-        ng = node.g + ((x - node.x === 0 || y - node.y === 0) ? 1 : SQRT2);
-
-        // check if the neighbor has not been inspected yet, or
-        // can be reached with smaller cost from the current node
-        if (!neighbor.opened || ng < neighbor.g) {
-            neighbor.g = ng;
-            neighbor.h = neighbor.h ||
-                weight * heuristic(abs(x - endX), abs(y - endY));
-            neighbor.f = neighbor.g + neighbor.h;
-            neighbor.parent = node;
-
-            if (!neighbor.opened) {
-                startOpenList.push(neighbor);
-                neighbor.opened = BY_START;
-            } else {
-                // the neighbor can be reached with smaller cost.
-                // Since its f value has been updated, we have to
-                // update its position in the open list
-                startOpenList.updateItem(neighbor);
-            }
-        }
+        this.updateList(BY_START,node,neighbor,startOpenList,endX,endY);
     } // end for each neighbor
 
 
@@ -206,32 +200,7 @@ while (!startOpenList.empty() && !endOpenList.empty()) {
             return Util.biBacktrace(neighbor, node);
         }
 
-        x = neighbor.x;
-        y = neighbor.y;
-
-        // get the distance between current node and the neighbor
-        // and calculate the next g score
-        ng = node.g + ((x - node.x === 0 || y - node.y === 0) ? 1 : SQRT2);
-
-        // check if the neighbor has not been inspected yet, or
-        // can be reached with smaller cost from the current node
-        if (!neighbor.opened || ng < neighbor.g) {
-            neighbor.g = ng;
-            neighbor.h = neighbor.h ||
-                weight * heuristic(abs(x - startX), abs(y - startY));
-            neighbor.f = neighbor.g + neighbor.h;
-            neighbor.parent = node;
-
-            if (!neighbor.opened) {
-                endOpenList.push(neighbor);
-                neighbor.opened = BY_END;
-            } else {
-                // the neighbor can be reached with smaller cost.
-                // Since its f value has been updated, we have to
-                // update its position in the open list
-                endOpenList.updateItem(neighbor);
-            }
-        }
+        this.updateList(BY_END,node,neighbor,endOpenList,startX,startY);
     } // end for each neighbor
 } // end while not open list empty
 
