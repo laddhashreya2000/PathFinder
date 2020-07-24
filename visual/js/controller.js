@@ -189,7 +189,7 @@ $.extend(Controller, {
 
         //initializes the variables  
 	    this.endNodes = new Array;
-        this.startNodes = new Array;
+            this.startNodes = new Array;
 	    this.setType = "0zero";
 		this.stype = 0;
 
@@ -906,12 +906,8 @@ $.extend(Controller, {
                 );
 
                 var len = PF.Util.pathLength(dist);
-				
-				if(!dist.length) {
-					this.path_exist = false; return graph;
-				}
-
-				graph[j][i] = new Array(2);
+		    
+		graph[j][i] = new Array(2);
                 graph[j][i][0]=len;
                 graph[j][i][1]=dist;
                 graph[i][j] = new Array(2);
