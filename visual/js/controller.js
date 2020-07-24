@@ -222,14 +222,10 @@ $.extend(Controller, {
         var timeStart, timeEnd;
 
         timeStart = window.performance ? performance.now() : Date.now();
-        this.path_exist = true;
 		
         if(this.setType === "0zero"){                   // if the current category is search
 		    var gr = this.makeGraph(this.endNodes);       // finds the path of all possible combination and stores in gr
-
-		    if(this.path_exist){
-  		  
-			    var n = this.endNodes.length,                 
+  		    var n = this.endNodes.length,                 
                     pathArray = new Array,                    // stores the minimum length path
                     order = {p: new Array},                   // stores the order of endNodes travelled for shortest path 
                     len = this.getPath(1,gr,0,n, order),      // gives the length of the shortest path 
@@ -241,10 +237,7 @@ $.extend(Controller, {
 		        }
 
             this.path = pathArray;
-		    }
-		    else{
-				this.path = []; 
-            }
+		  
         }
 	    else{             // if the current category is race
 	  
