@@ -300,6 +300,7 @@ $.extend(Controller, {
 	  else{           // if the current category is race
 
 		var path = this.graph;
+		var pathLen;
 
         View.showStats2({
             pathLength1: path[0][0],
@@ -310,8 +311,9 @@ $.extend(Controller, {
         });
 
 		var x = document.getElementById("WinMsg");
-
+        console.log(this.winner[0]);
 		if(this.winner[0] === undefined){       // case when no rover can reach the destination
+			pathLen = -1;
 			x.innerHTML = "No rover can reach the destination.";
 		}
 		else{
@@ -320,7 +322,7 @@ $.extend(Controller, {
 		             "<img src= './visual/js/mars_rover2.png' width=34% />"
        		];
 
-		    var pathLen = path[this.winner[0]][0];       // path length of the winner rover
+		    pathLen = path[this.winner[0]][0];       // path length of the winner rover
 		    
 			setTimeout(function(){
 				// step by step movement of rovers
