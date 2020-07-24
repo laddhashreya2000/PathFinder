@@ -41,7 +41,7 @@
       Choose an algorithm from the right-hand panel. <br>
       Explore a fun feature by selecting <span style="color:rgb(26, 213, 226);">"Race between rovers"</span> category! <br>
       Choose the number of destinations from the panel below.<br>
-      Node size can be chaned from the "Node Size" panel.
+      Change node size by entering a number between 50 and 250 at "Node Size" panel.
     </div>
 
     <div id="WelcomeMsg" class = "show">Welcome!! <br>Find the shortest path from rover to destination.</div>
@@ -245,10 +245,10 @@
     <div id = "NodeSize" class = "panel">
      <header><h2 class = "header_title">Node Size</h2></header>
      <div id="Ndest" class="options">
-         <input id = "spinner" type="text" name="nodesize" style="width: 50px;" value="100"/>
+         <input id = "Node_size" type="text" name="nodesize" style="width: 50px;" value="100"/>
          <label class="option_label">%</label>
       </div>
-     <button id="button5" class="control_button" style="width: 80px;" onclick="Controller.onnode()">Change</button>
+     <button id="button5" class="control_button" style="width: 80px;" >Change</button>
     </div>
 
     <div id = "RoverRace" class = "panel">

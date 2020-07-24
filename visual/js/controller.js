@@ -142,8 +142,8 @@ $.extend(Controller, {
 		   this.zoom  = zoom;
 		}
 		else{
-            window.alert("Please enter a number between 50 and 250");	
-            $( "#spinner" ).val(this.zoom);			
+            window.alert("Please enter a number between 50 and 250.");	
+            $( "#Node_size" ).val(this.zoom);			
 		}	     
     },
     showinstructions: function() {
@@ -161,14 +161,13 @@ $.extend(Controller, {
       $('#instructions_panel').show();
     },
     getGridSize: function() {
-     // Controller.getNodeSize();
-      var width = Math.floor($(window).width()/View.nodeSize) +1,
-          height = Math.floor($(window).height()/View.nodeSize) + 1;
-      this.gridSize = [width,height];
+        var width = Math.floor($(window).width()/View.nodeSize) +1,
+            height = Math.floor($(window).height()/View.nodeSize) + 1;
+        this.gridSize = [width,height];
     },
     getDest: function(){
-      var destattr =$('input[name=dest]:checked').val();
-      return destattr;
+        var destattr =$('input[name=dest]:checked').val();
+        return destattr;
     },
   	getStype: function(){
         var stype =$('input[name=stype]:checked').val();
@@ -192,16 +191,14 @@ $.extend(Controller, {
 
 	    this.endNodes = new Array;
         this.startNodes = new Array;
-	    this.stype = 0;
-	    this.setType = this.getStype();
+	    this.setType = "0zero";
+		this.stype = 0;
 
         var x = document.getElementById("WelcomeMsg");
         setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3500);
 
         View.generateGrid(function() {
-			console.log(Controller.setType);
-            if(Controller.setType === "0zero") Controller.setDefaultStartEndPos();
-            else Controller.setDefaultStartEndPos2();
+            Controller.setDefaultStartEndPos();
 			Controller.bindEvents();
             Controller.transition(); // transit to the next state (ready)
         });
@@ -227,7 +224,7 @@ $.extend(Controller, {
 
         timeStart = window.performance ? performance.now() : Date.now();
 
-    if(this.setType === "0zero"){
+      if(this.setType === "0zero"){
 		var gr = this.makeGraph(this.endNodes),
             n = this.endNodes.length,
             pathArray = new Array,
@@ -246,7 +243,7 @@ $.extend(Controller, {
 		View.setRoverPos2(Controller.startNodes[0][0], Controller.startNodes[0][1], 0);
 		View.setRoverPos2(Controller.startNodes[1][0], Controller.startNodes[1][1], 1);
 		View.setRoverPos2(Controller.startNodes[2][0], Controller.startNodes[2][1], 2);
-		console.log(this.startNodes);
+		
 		this.winner = new Array;
         var graph = this.makeGraph2(this.startNodes);
         this.graph = graph;
@@ -481,18 +478,26 @@ $.extend(Controller, {
         // => ready
     },
     onnode: function(event, from, to) {
-		Controller.getNodeSize();
-		setTimeout(function() {
-            Controller.clearOperations();
-            Controller.clearAll();
-			Controller.clearFootprints();
-            Controller.getGridSize();
-            Controller.buildNewGrid();
-            Controller.onleavenone();
-			document.getElementById("button3").click();
-            Controller.onready(); 
-		 
-        }, View.nodeColorizeEffect.duration * 1.2);
+		this.clearAll();
+		this.clearOperations();
+		this.getNodeSize();
+		Controller.getGridSize();
+			
+        var numCols = Controller.gridSize[0],
+            numRows = Controller.gridSize[1];
+
+        Controller.grid = new PF.Grid(numCols, numRows);
+
+        View.init({
+            numCols: numCols,
+            numRows: numRows
+        });
+
+        View.generateGrid(function() {
+            if(Controller.setType === "0zero") Controller.setDefaultStartEndPos();
+            else Controller.setDefaultStartEndPos2();
+            Controller.bindEvents();
+        });
     },
 	onraceset: function(event, from, to) {
 		var a = this.setType = this.getStype();
@@ -564,6 +569,11 @@ $.extend(Controller, {
             text: 'Set dest',
             enabled: this.SetDestType[this.stype],
             callback: $.proxy(this.set, this),
+		}, {
+            id: 5,
+            text: 'Change',
+            enabled: true,
+            callback: $.proxy(this.node, this),	
 		}, {
             id: 6,
             text: 'Set',
