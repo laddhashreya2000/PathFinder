@@ -134,7 +134,7 @@ $.extend(Controller, {
     operationsPerSecond: 300,
 	zoom: 100,
 	RoverImg: ['./visual/js/mars_rover.png', './visual/js/mars_rover2.png', './visual/js/mars_rover3.png'],
-	StatsState: ["Searching", "Racing"],
+	StatsState: ["Searching", "Racing"],     //For dynamic stats
     getNodeSize: function() {
         var zoom = $('input[name=nodesize]').val();
 		if(zoom >=50 && zoom <=250){
@@ -143,7 +143,7 @@ $.extend(Controller, {
 		}
 		else{
             window.alert("Please enter a number between 50 and 250.");	
-            $( "#Node_size" ).val(this.zoom);			
+            $( "#Node_size" ).val(this.zoom);			//If enters an invalid value then set back to last one
 		}	     
     },
     showinstructions: function() {
@@ -170,7 +170,7 @@ $.extend(Controller, {
         return destattr;
     },
   	getStype: function(){
-        var stype =$('input[name=stype]:checked').val();
+        var stype =$('input[name=stype]:checked').val();        // Gives which category is selected
 		return stype;
     },
 
@@ -189,13 +189,14 @@ $.extend(Controller, {
             numRows: numRows
         });
 
+        //initializes the variables  
 	    this.endNodes = new Array;
         this.startNodes = new Array;
 	    this.setType = "0zero";
 		this.stype = 0;
 
         var x = document.getElementById("WelcomeMsg");
-        setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3500);
+        setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3500);   //Fades out the welcome msg
 
         View.generateGrid(function() {
             Controller.setDefaultStartEndPos();
@@ -224,29 +225,31 @@ $.extend(Controller, {
 
         timeStart = window.performance ? performance.now() : Date.now();
 
-      if(this.setType === "0zero"){
-		var gr = this.makeGraph(this.endNodes),
-            n = this.endNodes.length,
-            pathArray = new Array,
-            order = {p: new Array},
-            len = this.getPath(1,gr,0,n, order),
+      if(this.setType === "0zero"){                   // if the current category is search
+		var gr = this.makeGraph(this.endNodes),       // finds the path of all possible combination and stores in gr
+            n = this.endNodes.length,                 
+            pathArray = new Array,                    // stores the minimum length path
+            order = {p: new Array},                   // stores the order of endNodes travelled for shortest path 
+            len = this.getPath(1,gr,0,n, order),      // gives the length of the shortest path 
 		    f = order.p.reverse(),  l = f.length;
 
 		for(var j=0; j<l-1; j++){
-			 if(f[j+1] > f[j] ) gr[f[j]][f[j+1]][1].reverse();
+			 if(f[j+1] > f[j] ) gr[f[j]][f[j+1]][1].reverse();          //constructs path from the order
 		     pathArray = pathArray.concat(gr[f[j]][f[j+1]][1]);
 		}
 
         this.path = pathArray;
       }
-	  else{
+	  else{           // // if the current category is race
+	  
+	    //sets the rover image to the start position
 		View.setRoverPos2(Controller.startNodes[0][0], Controller.startNodes[0][1], 0);
 		View.setRoverPos2(Controller.startNodes[1][0], Controller.startNodes[1][1], 1);
 		View.setRoverPos2(Controller.startNodes[2][0], Controller.startNodes[2][1], 2);
 		
-		this.winner = new Array;
-        var graph = this.makeGraph2(this.startNodes);
-        this.graph = graph;
+		this.winner = new Array;         // stores the index of all winner rovers
+        var graph = this.makeGraph2(this.startNodes);     
+        this.graph = graph;              // stores the path of all the rovers
 	  }
 
         this.operationCount = this.operations.length;
@@ -255,91 +258,6 @@ $.extend(Controller, {
 
         this.loop();
         // => searching
-    },
-	makeGraph: function(endNodes){
-        var n = endNodes.length;
-        var graph = new Array(n);
-        for (var i = 0; i < graph.length; i++) {
-            graph[i] = new Array(n);
-        }
-
-        for(var i = 0; i < graph.length; i++){
-            for(var j = i; j < graph.length; j++){
-                var Grid,finder = Panel.getFinder();
-                Grid = this.grid.clone();
-
-                var dist = finder.findPath(
-                  endNodes[i][0], endNodes[i][1], endNodes[j][0], endNodes[j][1], Grid
-                );
-
-                var len = PF.Util.pathLength(dist);
-
-				graph[j][i] = new Array(2);
-                graph[j][i][0]=len;
-                graph[j][i][1]=dist;
-                graph[i][j] = new Array(2);
-                graph[i][j][0]=len;
-                graph[i][j][1]= dist.reverse();
-            }
-        }
-
-        return graph;
-
-    },
-	makeGraph2: function(endNodes){
-        var n = endNodes.length;
-        var graph = new Array(n-1);
-		var win_len = 100000;
-
-        for(var i = 0; i < graph.length; i++){
-
-                var Grid,finder = Panel.getFinder();
-                Grid = this.grid.clone(i);
-
-                var dist = finder.findPath(
-                  endNodes[i][0], endNodes[i][1], endNodes[n-1][0], endNodes[n-1][1], Grid, i
-                );
-
-                var len = PF.Util.pathLength(dist);
-
-		if(len< win_len && len > 0) {win_len = len; this.winner = [i]; }
-        else if(len === win_len) this.winner.push(i);
-
-                graph[i] = new Array(2);
-                graph[i][0]=len;
-                graph[i][1]= dist;
-        }
-
-        return graph;
-	},
-    getPath: function(bit_mask,gr,pos,n, order){
-        if (bit_mask === ((1<<n)-1)) {
-            order.p.push(pos);
-			return 0;
-        }
-
-        var min_len = 1000000;
-
-        for (var i = 1; i < n; i++) {
-            if (!(bit_mask & (1<<i))) {
-			    var new_o = {p: new Array};
-
-				if(!gr[pos][i][0]){
-				    order.p = new_o.p;
-					return 0;
-				}
-
-                var new_len = Controller.getPath(bit_mask|(1<<i), gr, i, n, new_o);
-				new_len += gr[pos][i][0] ;
-
-                if(new_len < min_len) {
-					min_len = new_len;
-					order.p = new_o.p;
-                }
-            }
-        }
-        order.p.push(pos);
-        return min_len;
     },
     onrestart: function() {
         // When clearing the colorized nodes, there may be
@@ -370,26 +288,8 @@ $.extend(Controller, {
         View.dynamicStats('Cancelled. Start ' + this.StatsState[this.stype] + ' again');
         // => ready
     },
-	callback: function(path, i, pathLen, t, n){
-		var path1 = [path[i-1], path[i]],
-		    len1 = PF.Util.pathLength(path1);   // length of the step (either 1 or sqrt(2))
-			t = t+ len1;                        // t = length till this step		
-		
-		if(t<=pathLen){
-		    setTimeout(function() {
-			    View.drawPath(path1, n, i-1);                    // draws 1 step path of rover
-			    View.setRoverPos2(path[i][0], path[i][1], n);    // set the position of rover to the current point
-		    }, (len1-1)*500);
-		}	
-		
-		if(t<pathLen){                // while no rover has reached the destination
-		    setTimeout(function(){
-			    Controller.callback(path, i+1, pathLen, t, n);
-		    }, len1*500);		
-		}
-	},	
     onfinish: function(event, from, to) {
-      if(this.setType === "0zero"){
+      if(this.setType === "0zero"){       // if the current category is search
         View.showStats({
             pathLength: PF.Util.pathLength(this.path),
             timeSpent:  this.timeSpent,
@@ -397,7 +297,7 @@ $.extend(Controller, {
         });
         View.drawPath(this.path, 0, 0);
       }
-	  else{
+	  else{           // if the current category is race
 
 		var path = this.graph;
 
@@ -411,7 +311,7 @@ $.extend(Controller, {
 
 		var x = document.getElementById("WinMsg");
 
-		if(this.winner[0] === undefined){
+		if(this.winner[0] === undefined){       // case when no rover can reach the destination
 			x.innerHTML = "No rover can reach the destination.";
 		}
 		else{
@@ -420,18 +320,21 @@ $.extend(Controller, {
 		             "<img src= './visual/js/mars_rover2.png' width=34% />"
        		];
 
-		    var pathLen = path[this.winner[0]][0];
+		    var pathLen = path[this.winner[0]][0];       // path length of the winner rover
 		    
 			setTimeout(function(){
+				// step by step movement of rovers
 				if(path[0][1].length)  {Controller.callback(path[0][1], 1, pathLen, 0, 0); }
 				if(path[1][1].length)  {Controller.callback(path[1][1], 1, pathLen, 0, 1); }
 				if(path[2][1].length)  {Controller.callback(path[2][1], 1, pathLen, 0, 2); }
 			}, 500);
 				
 			setTimeout(function(){
+				// sets the position of the winner rovers
 				View.setRoverWinPos(Controller.winner, Controller.startNodes[3][0], Controller.startNodes[3][1]);
 			}, (pathLen+1)*500);
 
+            // Win message text
 		    var winRover = (this.winner[0] +1);
 			var winImg = imgs[Controller.winner[0]];
 
@@ -444,6 +347,7 @@ $.extend(Controller, {
 			else x.innerHTML = "Congrats, the winners are <br>" + winImg ;
 		}
 
+        // Fades in and then fades out win msg
         setTimeout(function(){ x.className = x.className.replace("", "show"); }, (pathLen+1)*500);
         setTimeout(function(){ x.className = x.className.replace("show", ""); }, (pathLen+9)*500);
 	  }
@@ -500,7 +404,7 @@ $.extend(Controller, {
         });
     },
 	onraceset: function(event, from, to) {
-		var a = this.setType = this.getStype();
+		var a = this.setType = this.getStype();      // gives the current category
 		this.stype = a[0];
 		var x = document.getElementById("WelcomeMsg");
         setTimeout(function() {
@@ -508,18 +412,19 @@ $.extend(Controller, {
             Controller.clearAll();
             Controller.getGridSize();
             Controller.buildNewGrid();
-            if(a === "1one") {
+            if(a === "1one") {          //if the category is changed to search one
 			    Controller.setDefaultStartEndPos2();
                 View.dynamicStats('Start racing');
 	            x.innerHTML = "Welcome to the race between rovers. <br> Enjoy the race.";
     	    }
-    	    else {
+    	    else {                     //if the category is changed to race one
     			Controller.setDefaultStartEndPos();
         		View.dynamicStats('Start searching');
         		x.innerHTML = "Welcome!! <br>Find the shortest path from rover to destination.";
     		}
         }, View.nodeColorizeEffect.duration * 1.2);
 
+        // sets button states 
 		this.setButtonStates({
             id: 1,
             text: 'Start ' + this.StypeState[this.stype] ,
@@ -541,8 +446,8 @@ $.extend(Controller, {
         // => ready
     },
 
-	StypeState: ["Search", "Race"],
-	SetDestType: [true, false],
+	StypeState: ["Search", "Race"],      // Used for the buttons text for different category
+	SetDestType: [true, false],          // Used for the buttons enability for different category
 
     /**
      * The following functions are called on entering states.
@@ -800,7 +705,7 @@ $.extend(Controller, {
             gridY = coord[1],
             grid  = this.grid;
 
-      if(this.setType !== "1one"){
+      if(this.setType !== "1one"){        //if the current category is search 
         if (this.can('dragStart') && this.isStartPos(gridX, gridY)) {
             this.dragStart();
             return;
@@ -822,7 +727,7 @@ $.extend(Controller, {
             return;
         }
 	  }
-      else{
+      else{              //if the current category is race
 		if (this.can('dragStart') && this.isStartPos2(gridX, gridY, 0)) {
             this.dragStart();
             return;
@@ -854,7 +759,7 @@ $.extend(Controller, {
             gridX = coord[0],
             gridY = coord[1];
 
-      if(this.setType !== "1one"){
+      if(this.setType !== "1one"){    //if the current category is search
         if (this.isStartOrEndPos(gridX, gridY)) {
             return;
         }
@@ -893,7 +798,7 @@ $.extend(Controller, {
             break;
         }
 	  }
-      else{
+      else{          //if the current category is race
 		if (this.isStartOrEndPos2(gridX, gridY)) {
             return;
         }
@@ -958,6 +863,109 @@ $.extend(Controller, {
      * of start node and end node.
      * It will detect user's display size, and compute the best positions.
      */
+	callback: function(path, i, pathLen, t, n){
+		var path1 = [path[i-1], path[i]],
+		    len1 = PF.Util.pathLength(path1);   // length of the step (either 1 or sqrt(2))
+			t = t+ len1;                        // t = length till this step		
+		
+		if(t<=pathLen){
+		    setTimeout(function() {
+			    View.drawPath(path1, n, i-1);                    // draws 1 step path of rover
+			    View.setRoverPos2(path[i][0], path[i][1], n);    // set the position of rover to the current point
+		    }, (len1-1)*500);
+		}	
+		
+		if(t<pathLen){                // while no rover has reached the destination
+		    setTimeout(function(){
+			    Controller.callback(path, i+1, pathLen, t, n);
+		    }, len1*500);		
+		}
+	},	 
+	makeGraph: function(endNodes){
+        var n = endNodes.length;
+        var graph = new Array(n);
+        for (var i = 0; i < graph.length; i++) {
+            graph[i] = new Array(n);
+        }
+
+        for(var i = 0; i < graph.length; i++){
+            for(var j = i; j < graph.length; j++){
+                var Grid,finder = Panel.getFinder();
+                Grid = this.grid.clone();
+
+                var dist = finder.findPath(
+                  endNodes[i][0], endNodes[i][1], endNodes[j][0], endNodes[j][1], Grid
+                );
+
+                var len = PF.Util.pathLength(dist);
+
+				graph[j][i] = new Array(2);
+                graph[j][i][0]=len;
+                graph[j][i][1]=dist;
+                graph[i][j] = new Array(2);
+                graph[i][j][0]=len;
+                graph[i][j][1]= dist.reverse();
+            }
+        }
+
+        return graph;
+
+    },
+	makeGraph2: function(endNodes){
+        var n = endNodes.length;
+        var graph = new Array(n-1);
+		var win_len = 100000;
+
+        for(var i = 0; i < graph.length; i++){
+
+                var Grid,finder = Panel.getFinder();
+                Grid = this.grid.clone(i);
+
+                var dist = finder.findPath(
+                  endNodes[i][0], endNodes[i][1], endNodes[n-1][0], endNodes[n-1][1], Grid, i
+                );
+
+                var len = PF.Util.pathLength(dist);
+
+		if(len< win_len && len > 0) {win_len = len; this.winner = [i]; }        //checks if the path length is minimum
+        else if(len === win_len) this.winner.push(i);
+
+                graph[i] = new Array(2);
+                graph[i][0]=len;
+                graph[i][1]= dist;
+        }
+
+        return graph;
+	},
+    getPath: function(bit_mask,gr,pos,n, order){
+        if (bit_mask === ((1<<n)-1)) {      // if all dest are visited  
+            order.p.push(pos);
+			return 0;
+        }
+
+        var min_len = 1000000;
+
+        for (var i = 1; i < n; i++) {
+            if (!(bit_mask & (1<<i))) {       // if the current dest is not already visited
+			    var new_o = {p: new Array};
+
+				if(!gr[pos][i][0]){
+				    order.p = new_o.p;
+					return 0;
+				}
+
+                var new_len = Controller.getPath(bit_mask|(1<<i), gr, i, n, new_o);      // recursive function call
+				new_len += gr[pos][i][0] ;
+
+                if(new_len < min_len) {             // if the length is less than minimum till now
+					min_len = new_len;
+					order.p = new_o.p;
+                }
+            }
+        }
+        order.p.push(pos);
+        return min_len;
+    },
     setDefaultStartEndPos: function() {
         var width, height,
             marginRight, availWidth,
@@ -974,60 +982,60 @@ $.extend(Controller, {
         centerX = Math.ceil(availWidth / 2 / nodeSize);
         centerY = Math.floor(height / 2 / nodeSize);
 
-		if(this.startNodes[0]){
-		   this.setEndPos2(64*nodeSize, 36*nodeSize, 3);
-	       this.startNodes.splice(3);
+		if(this.startNodes[0]){          // removes the race category start end position
+		    this.setEndPos2(64*nodeSize, 36*nodeSize, 3);
+	        this.startNodes.splice(3);
 
-		   for(var i=2; i>=0; i--){
-		      this.setStartPos2(64*nodeSize, 36*nodeSize, i);
-		      this.startNodes.splice(i);
-           }
+		    for(var i=2; i>=0; i--){
+		       this.setStartPos2(64*nodeSize, 36*nodeSize, i);
+		       this.startNodes.splice(i);
+            }
 		}
 
         this.setStartPos(centerX - 4, centerY);
         this.setEndPos(centerX + 4, centerY, 1);
 
-		if(Controller.getDest() === "Two") {
+		if(Controller.getDest() === "Two") {           // if Two destinations
             this.setEndPos(centerX, centerY+4, 2);
-
-			if(this.endNodes[4]){
+ 
+			if(this.endNodes[4]){                      // if dest 4 present removes that
                this.setEndPos(64*nodeSize, 36*nodeSize, 4);
 			   this.endNodes.splice(4);
-      }
+            }
 
-      if(this.endNodes[3]){
-         this.setEndPos(64*nodeSize, 36*nodeSize, 3);
+            if(this.endNodes[3]){                      // if dest 3 present removes that
+               this.setEndPos(64*nodeSize, 36*nodeSize, 3);
 			   this.endNodes.splice(3);
-      }
-    }
-    else if(Controller.getDest() === "Three"){
-        this.setEndPos(centerX, centerY+4, 2);
-        this.setEndPos(centerX, centerY-4, 3);
+            }
+        }
+        else if(Controller.getDest() === "Three"){     // if Three destinations
+            this.setEndPos(centerX, centerY+4, 2);
+            this.setEndPos(centerX, centerY-4, 3);
 
-			if(this.endNodes[4]){
+			if(this.endNodes[4]){                      // if dest 4 present removes that
                this.setEndPos(64*nodeSize, 36*nodeSize, 4);
 			   this.endNodes.splice(4);
             }
         }
-		else if(Controller.getDest() === "Four"){
+		else if(Controller.getDest() === "Four"){      // if Three destinations
 			this.setStartPos(centerX, centerY);
             this.setEndPos(centerX, centerY+4, 2);
             this.setEndPos(centerX, centerY-4, 3);
 			this.setEndPos(centerX-4, centerY, 4);
 
 		}
-        else{
-			if(this.endNodes[4]){
+        else{                                          // if One destinations
+			if(this.endNodes[4]){                      // if dest 4 present removes that
                this.setEndPos(64*nodeSize, 36*nodeSize, 4);
 			   this.endNodes.splice(4);
             }
 
-			if(this.endNodes[3]){
+			if(this.endNodes[3]){                      // if dest 3 present removes that
                this.setEndPos(64*nodeSize, 36*nodeSize, 3);
 			   this.endNodes.splice(3);
             }
 
-            if(this.endNodes[2]){
+            if(this.endNodes[2]){                      // if dest 2 present removes that
                this.setEndPos(64*nodeSize, 36*nodeSize, 2);
 			   this.endNodes.splice(2);
             }
@@ -1059,6 +1067,8 @@ $.extend(Controller, {
         return this.isStartPos(gridX, gridY) || this.isEndPos(gridX, gridY, 1) || this.isEndPos(gridX, gridY, 2)
 		    || this.isEndPos(gridX, gridY, 3) || this.isEndPos(gridX, gridY, 4);
     },
+	
+	//functions for race category
 	setDefaultStartEndPos2: function() {
         var width, height,
             marginRight, availWidth,
@@ -1075,7 +1085,7 @@ $.extend(Controller, {
         centerX = Math.ceil(availWidth / 2 / nodeSize);
         centerY = Math.floor(height / 2 / nodeSize);
 
-		for(var i=this.endNodes.length - 1; i>0; i--){
+		for(var i=this.endNodes.length - 1; i>0; i--){       // removes search category start end positions
 		   this.setEndPos(64*nodeSize, 36*nodeSize, i);
 		   this.endNodes.splice(i);
         }
@@ -1083,6 +1093,7 @@ $.extend(Controller, {
 		this.setStartPos(64*nodeSize, 36*nodeSize);
 		this.endNodes.splice(0);
 
+        // sets start and end positions
         this.setStartPos2(centerX-2, centerY, 0);
 	    this.setStartPos2(centerX+3, centerY-4, 1);
 	    this.setStartPos2(centerX+3, centerY+4, 2);
