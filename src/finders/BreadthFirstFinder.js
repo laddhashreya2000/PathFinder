@@ -41,18 +41,19 @@ function BreadthFirstFinder(opt) {
 BreadthFirstFinder.prototype.findPath = function(startX, startY, endX, endY, grid) {
 
     var bi = this.biDirectional;
+    var openList = [],
+        diagonalMovement = this.diagonalMovement,
+        startNode = grid.getNodeAt(startX, startY),
+        endNode = grid.getNodeAt(endX, endY),
+        neighbors, neighbor, node, i, l;
+
 
 if(bi){
-    var startNode = grid.getNodeAt(startX, startY),
-        endNode = grid.getNodeAt(endX, endY),
-        startOpenList = [], endOpenList = [],
-        neighbors, neighbor, node,
-        diagonalMovement = this.diagonalMovement,
-        BY_START = 0, BY_END = 1,
-        i, l;
+    var endOpenList = [],
+        BY_START = 0, BY_END = 1;
 
     // push the start and end nodes into the queues
-    startOpenList.push(startNode);
+    openList.push(startNode);
     startNode.opened = true;
     startNode.by = BY_START;
 
@@ -61,11 +62,11 @@ if(bi){
     endNode.by = BY_END;
 
     // while both the queues are not empty
-    while (startOpenList.length && endOpenList.length) {
+    while (openList.length && endOpenList.length) {
 
         // expand start open list
 
-        node = startOpenList.shift();
+        node = openList.shift();
         node.closed = true;
 
         neighbors = grid.getNeighbors(node, diagonalMovement);
@@ -83,7 +84,7 @@ if(bi){
                 }
                 continue;
             }
-            startOpenList.push(neighbor);
+            openList.push(neighbor);
             neighbor.parent = node;
             neighbor.opened = true;
             neighbor.by = BY_START;
@@ -115,14 +116,8 @@ if(bi){
     }
 
     // fail to find the path
-    return [];
 }
 else{
-    var openList = [],
-        diagonalMovement = this.diagonalMovement,
-        startNode = grid.getNodeAt(startX, startY),
-        endNode = grid.getNodeAt(endX, endY),
-        neighbors, neighbor, node, i, l;
 
     // push the start pos into the queue
     openList.push(startNode);
@@ -153,10 +148,10 @@ else{
             neighbor.parent = node;
         }
     }
-    
+}
     // fail to find the path
     return [];
-}
+
 };
 
 module.exports = BreadthFirstFinder;

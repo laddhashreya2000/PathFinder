@@ -39,7 +39,7 @@ function IDAStarFinder(opt) {
     this.heuristic = opt.heuristic || Heuristic.manhattan;
     this.weight = opt.weight || 1;
     this.trackRecursion = opt.trackRecursion || false;
-    
+
 
     if (!this.diagonalMovement) {
         if (!this.allowDiagonal) {
@@ -72,8 +72,6 @@ function IDAStarFinder(opt) {
 IDAStarFinder.prototype.findPath = function(startX, startY, endX, endY, grid){
 
     var visitedNode = 0;
-
-    var startTime = new Date().getTime();
 
     var h = function(a,b){
         return this.heuristic(Math.abs(b.x-a.x), Math.abs(b.y-a.y));
@@ -112,10 +110,8 @@ IDAStarFinder.prototype.findPath = function(startX, startY, endX, endY, grid){
 
          neighbors = grid.getNeighbors(node, this.diagonalMovement);
 
-//       for(i=0;i<neighbors.length;++i)
-         for(i=0, min=Infinity; neighbor = neighbors[i];
-            ++i){
-              
+         for(i=0, min=Infinity; neighbor = neighbors[i]; ++i){
+
               if(this.trackRecursion){
 
                   neighbor.retainCount = (neighbor.retainCount + 1) || 1;
