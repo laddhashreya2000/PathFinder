@@ -10,8 +10,8 @@ var pathfinding = {
     'BreadthFirstFinder'        : require('./finders/BreadthFirstFinder'),
     'DijkstraFinder'            : require('./finders/DijkstraFinder'),
     'IDAStarFinder'             : require('./finders/IDAStarFinder'),
-    'JumpPointFinder'           : require('./finders/JPFMoveDiagonallyIfAtMostOneObstacle'),
-    'OrthoJumpPointFinder'      : require('./finders/JPFNeverMoveDiagonally')
+    'JumpPointFinder'           : require('./finders/JPF'),
+    'OrthoJumpPointFinder'      : require('./finders/JPF')
 };
 
 
