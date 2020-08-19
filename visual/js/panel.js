@@ -23,7 +23,7 @@ var Panel = {
 			$('#NodeSize').css({
                 top: $('#RoverRace').offset().top + $('#RoverRace').outerHeight() + $('#NoOfDest').offset().top + $('#NoOfDest').outerHeight() - 150
             });
-            document.getElementById("footer").innerHTML = "See <a href='#' onclick='Controller.showinstructions()'>instructions</a>. Project hosted on <a href='https://github.com/MuktaWagle/microsoftEngage2020/tree/gh-pages'>Github</a>.";
+            document.getElementById("footer").innerHTML = "See <a href='#' onclick='Controller.showinstructions()'>instructions</a>. Project hosted on <a href='https://github.com/laddhashreya2000/PathFinder'>Github</a>.";
         });
         $('#play_panel').css({
             top: $algo.offset().top + $algo.outerHeight() + 20
